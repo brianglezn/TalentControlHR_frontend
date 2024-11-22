@@ -1,0 +1,19 @@
+@use "../variables" as vars;
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap");
+@import "primeicons/primeicons.css";
+
+:root {
+    font-family: "Rubik", sans-serif;
+    scroll-behavior: smooth;
+    min-height: 100%;
+    overflow-y: scroll;
+
+    ::selection {
+        background-color: vars.$highlightFocusBg;
+    }
+}
+
+* {
+    scrollbar-width: thin;
+    font-family: "Rubik", sans-serif;
+}
