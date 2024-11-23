@@ -45,6 +45,14 @@
             .p-float-label {
                 width: 100%;
 
+                >div {
+                    width: 100%;
+
+                    div {
+                        width: 100%;
+                    }
+                }
+
                 input {
                     width: 100%;
                     padding: 0.8rem;

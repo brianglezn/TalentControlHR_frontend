@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { Password } from 'primereact/password';
+import { toast } from 'react-hot-toast';
+
+import { register, login } from '@api/auth/authService';
 
 import './Home.scss';
 
@@ -9,13 +13,56 @@ export default function Home() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        fullName: '',
+        name: '',
+        username: '',
+        surnames: '',
         confirmPassword: '',
     });
+
+    const resetForm = () => {
+        setFormData({
+            email: '',
+            password: '',
+            name: '',
+            username: '',
+            surnames: '',
+            confirmPassword: '',
+        });
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = async () => {
+        try {
+            if (isLogin) {
+                await login({ email: formData.email, password: formData.password });
+                toast.success('Login successful!');
+            } else {
+                if (formData.password !== formData.confirmPassword) {
+                    toast.error('Passwords do not match');
+                    return;
+                }
+                await register({
+                    username: formData.username,
+                    name: formData.name,
+                    surnames: formData.surnames,
+                    email: formData.email,
+                    password: formData.password,
+                });
+                toast.success('Registration successful!');
+                setIsLogin(true);
+            }
+            resetForm();
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                toast.error(err.message || 'An error occurred');
+            } else {
+                toast.error('An unexpected error occurred');
+            }
+        }
     };
 
     return (
@@ -39,18 +86,18 @@ export default function Home() {
                         </div>
                         <div className="input-group">
                             <span className="p-float-label">
-                                <InputText
+                                <Password
                                     id="password"
                                     name="password"
-                                    type="password"
                                     value={formData.password}
                                     onChange={handleInputChange}
+                                    toggleMask
+                                    feedback={false}
                                 />
                                 <label htmlFor="password">Password</label>
                             </span>
-                            <span className="forgot-password">Forgot password?</span>
                         </div>
-                        <Button label="Sign In" className="sign-in-button" />
+                        <Button label="Login" className="sign-in-button" onClick={handleSubmit} />
                         <p className="signup-text">
                             Don’t have an account?{' '}
                             <span onClick={() => setIsLogin(false)} className="toggle-text">
@@ -63,12 +110,34 @@ export default function Home() {
                         <div className="input-group">
                             <span className="p-float-label">
                                 <InputText
-                                    id="fullName"
-                                    name="fullName"
-                                    value={formData.fullName}
+                                    id="username"
+                                    name="username"
+                                    value={formData.username}
                                     onChange={handleInputChange}
                                 />
-                                <label htmlFor="fullName">Full Name</label>
+                                <label htmlFor="username">Username</label>
+                            </span>
+                        </div>
+                        <div className="input-group">
+                            <span className="p-float-label">
+                                <InputText
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                />
+                                <label htmlFor="name">Name</label>
+                            </span>
+                        </div>
+                        <div className="input-group">
+                            <span className="p-float-label">
+                                <InputText
+                                    id="surnames"
+                                    name="surnames"
+                                    value={formData.surnames}
+                                    onChange={handleInputChange}
+                                />
+                                <label htmlFor="surnames">Surnames</label>
                             </span>
                         </div>
                         <div className="input-group">
@@ -84,29 +153,31 @@ export default function Home() {
                         </div>
                         <div className="input-group">
                             <span className="p-float-label">
-                                <InputText
+                                <Password
                                     id="password"
                                     name="password"
-                                    type="password"
                                     value={formData.password}
                                     onChange={handleInputChange}
+                                    toggleMask
+                                    feedback={false}
                                 />
                                 <label htmlFor="password">Password</label>
                             </span>
                         </div>
                         <div className="input-group">
                             <span className="p-float-label">
-                                <InputText
+                                <Password
                                     id="confirmPassword"
                                     name="confirmPassword"
-                                    type="password"
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
+                                    toggleMask
+                                    feedback={false}
                                 />
                                 <label htmlFor="confirmPassword">Confirm Password</label>
                             </span>
                         </div>
-                        <Button label="Sign Up" className="sign-in-button" />
+                        <Button label="Sign Up" className="sign-in-button" onClick={handleSubmit} />
                         <p className="signup-text">
                             Already have an account?{' '}
                             <span onClick={() => setIsLogin(true)} className="toggle-text">
