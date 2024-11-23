@@ -1,24 +1,89 @@
-.dashboard-menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+@use '../../../../variables' as vars;
 
-    li {
-        margin: 1rem 0;
-    }
+.dashboard-menu {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 1rem;
 
-    a {
-        text-decoration: none;
-        color: #333;
-        padding: 0.5rem;
-        display: block;
+    .menu-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
 
-        .active-link {
-            font-weight: bold;
-            color: #007bff;
-            background-color: #e0e0e0;
-            border-radius: 4px;
+        img {
+            width: 100%;
+            height: auto;
         }
     }
 
+    .menu-sections {
+        flex-grow: 1;
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: vars.$secondaryTextColor;
+            margin: 1rem 0 0.5rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+
+            a {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                text-decoration: none;
+                color: vars.$secondaryTextColor;
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+                transition: background-color 0.3s, color 0.3s;
+
+                &:hover {
+                    background-color: vars.$primaryLightColor;
+                    color: vars.$primaryDarkColor;
+                }
+
+                &.active-link {
+                    background-color: vars.$primaryColor;
+                    color: vars.$primaryTextColor;
+                    font-weight: bold;
+                }
+
+                i {
+                    font-size: 1.2rem;
+                }
+            }
+        }
+    }
+
+    .menu-user {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: 0.5rem;
+        margin-top: auto;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background-color: #ffffff;
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+
+            .user-name {
+                font-weight: bold;
+                color: vars.$secondaryTextColor;
+            }
+
+            .user-username {
+                font-size: 0.85rem;
+                color: vars.$secondaryTextColor;
+            }
+        }
+    }
 }

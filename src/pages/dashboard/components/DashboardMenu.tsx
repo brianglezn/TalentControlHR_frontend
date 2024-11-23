@@ -1,35 +1,75 @@
 import { NavLink } from 'react-router-dom';
+import { Avatar } from 'primereact/avatar';
+
+import logoTextH from '@assets/images/logo_text_h.png';
+import avatarImg from '@assets/images/avatar.png';
+
 import './DashboardMenu.scss';
 
 export default function DashboardMenu() {
     return (
         <nav className="dashboard-menu">
-            <ul>
+            <div className="menu-logo">
+                <img src={logoTextH} alt="Logo" />
+            </div>
+
+            <ul className="menu-sections">
                 <li>
                     <NavLink
-                        to="shifts"
+                        to="/dashboard"
+                        end
                         className={({ isActive }) => (isActive ? 'active-link' : '')}
                     >
-                        Shifts
+                        <i className="pi pi-objects-column"></i> Home
                     </NavLink>
                 </li>
                 <li>
                     <NavLink
-                        to="vacations"
+                        to="/dashboard/calendar"
                         className={({ isActive }) => (isActive ? 'active-link' : '')}
                     >
-                        Vacations
+                        <i className="pi pi-calendar"></i> Calendar
                     </NavLink>
                 </li>
                 <li>
                     <NavLink
-                        to="user-settings"
+                        to="/dashboard/shifts"
                         className={({ isActive }) => (isActive ? 'active-link' : '')}
                     >
-                        User Settings
+                        <i className="pi pi-clock"></i> Shifts
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink
+                        to="/dashboard/vacations"
+                        className={({ isActive }) => (isActive ? 'active-link' : '')}
+                    >
+                        <i className="pi pi-car"></i> Vacations
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink
+                        to="/dashboard/notifications"
+                        className={({ isActive }) => (isActive ? 'active-link' : '')}
+                    >
+                        <i className="pi pi-bell"></i> Notification
                     </NavLink>
                 </li>
             </ul>
+
+            <NavLink
+                to="/dashboard/user-settings"
+                className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+                <div className="menu-user">
+                    <Avatar image={avatarImg} shape="circle" />
+                    <div className="user-info">
+                        <span className="user-name">Brian</span>
+                        <span className="user-username">@brianglezn</span>
+                    </div>
+                    <i className="pi pi-ellipsis-v" style={{ fontSize: '1rem' }}></i>
+                </div>
+            </NavLink>
         </nav>
     );
 }

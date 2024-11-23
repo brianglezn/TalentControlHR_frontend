@@ -5,7 +5,7 @@ import './Dashboard.scss';
 
 export default function Dashboard() {
     return (
-        <div className="dashboard-layout">
+        <div className="dashboard">
             <DashboardMenu />
             <div className="dashboard-content">
                 <Outlet />
