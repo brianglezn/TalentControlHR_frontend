@@ -3,8 +3,9 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { toast } from 'react-hot-toast';
-
+import { useNavigate } from 'react-router-dom';
 import { register, login } from '@api/auth/authService';
+import { useAuth } from '@context/useAuth';
 
 import './Home.scss';
 
@@ -18,6 +19,8 @@ export default function Home() {
         surnames: '',
         confirmPassword: '',
     });
+    const { login: setAuthenticated } = useAuth();
+    const navigate = useNavigate();
 
     const resetForm = () => {
         setFormData({
@@ -40,6 +43,8 @@ export default function Home() {
             if (isLogin) {
                 await login({ email: formData.email, password: formData.password });
                 toast.success('Login successful!');
+                setAuthenticated();
+                navigate('/dashboard');
             } else {
                 if (formData.password !== formData.confirmPassword) {
                     toast.error('Passwords do not match');

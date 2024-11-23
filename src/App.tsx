@@ -1,15 +1,24 @@
 import { Routes, Route } from 'react-router-dom';
 
-import Dashboard from '@pages/dashboard/Dashboard';
 import Home from '@pages/landing/Home';
+import Dashboard from '@pages/dashboard/Dashboard';
+import { ProtectedRoute } from '@components/layout/ProtectedRoute';
+import { AuthProvider } from '@context/AuthContext';
 
 export default function App() {
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </>
-  );
+    return (
+        <AuthProvider>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+            </Routes>
+        </AuthProvider>
+    );
 }
