@@ -20,6 +20,7 @@ export const login = async (data: { email: string; password: string }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
     });
 
     if (!response.ok) {
@@ -39,6 +40,19 @@ export const logout = async () => {
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Failed to logout');
+    }
+
+    return response.json();
+};
+
+export const verify = async () => {
+    const response = await fetch(`${API_URL}/api/auth/verify`, {
+        method: 'GET',
+        credentials: 'include',
+    });
+
+    if (!response.ok) {
+        return { isAuthenticated: false };
     }
 
     return response.json();

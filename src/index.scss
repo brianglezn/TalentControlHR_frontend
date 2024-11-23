@@ -6,7 +6,6 @@
     font-family: "Rubik", sans-serif;
     scroll-behavior: smooth;
     min-height: 100%;
-    overflow-y: scroll;
 
     ::selection {
         background-color: vars.$highlightFocusBg;
@@ -14,10 +13,16 @@
 }
 
 * {
+    box-sizing: border-box;
     scrollbar-width: thin;
     font-family: "Rubik", sans-serif;
 }
 
+html,
 body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
