@@ -1,0 +1,37 @@
+@use '../../../../../../variables' as vars;
+
+.company-menu {
+    display: flex;
+    padding: 1rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: vars.$shadow_color 0px 1px 5px;
+
+    ul {
+        display: flex;
+        gap: 1.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            cursor: pointer;
+            color: vars.$primaryColor;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+
+            &.active {
+                background-color: vars.$primaryColor;
+                color: vars.$primaryTextColor;
+            }
+
+            &:hover {
+                background-color: vars.$primaryLightColor;
+                color: vars.$highlightTextColor;
+            }
+        }
+    }
+}

@@ -1,0 +1,79 @@
+@use '../../../../../../variables' as vars;
+
+.company-general {
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            .company-logo {
+                display: flex;
+                align-items: center;
+
+                img {
+                    width: 6rem;
+                    height: 6rem;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+            }
+
+            .company-basic-info {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+
+                h1 {
+                    font-size: 1.8rem;
+                    margin: 0;
+                }
+
+                p {
+                    font-size: 0.9rem;
+                    color: #666;
+                    margin: 0.5rem 0;
+                }
+            }
+        }
+    }
+
+    .sections {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+
+        .section {
+            background: #f6f7f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+
+            h2 {
+                font-size: 1.4rem;
+                margin-bottom: 0.5rem;
+            }
+
+            >p {
+                font-size: 0.9rem;
+                margin-bottom: 2rem;
+            }
+
+            form {
+                padding-top: 1rem;
+
+                .form-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 1.5rem;
+                }
+
+            }
+        }
+    }
+}

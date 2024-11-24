@@ -8,11 +8,8 @@
 
     .dashboard-content {
         width: 100%;
-        background-color: #ffffff;
         border-radius: 8px;
         padding: 1rem;
         margin: 0.5rem;
-        box-shadow: vars.$shadow_color 0px 1px 10px;
-        transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
     }
 }
