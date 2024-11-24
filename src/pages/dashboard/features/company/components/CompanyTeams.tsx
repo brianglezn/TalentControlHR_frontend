@@ -11,7 +11,25 @@ interface CompanyTeamsProps {
 }
 
 export default function CompanyTeams({ teams, setTeams }: CompanyTeamsProps) {
-    const handleAddTeam = () => setTeams([...teams, { name: '', description: '', color: '#000000' }]);
+    const handleAddTeam = () =>
+        setTeams([
+            ...teams,
+            {
+                teamId: `new-team-${Date.now()}`,
+                name: '',
+                description: '',
+                color: '#000000',
+                company: {
+                    companyId: 'talentcontrol-id',
+                    name: 'TalentControl HR',
+                    description: 'Manage HR from one place',
+                    industry: 'Human Resources',
+                    image: '',
+                    teams: [],
+                },
+            },
+        ]);
+
 
     return (
         <div>
