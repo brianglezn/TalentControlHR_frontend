@@ -25,6 +25,14 @@ export default function DashboardMenu() {
                 </li>
                 <li>
                     <NavLink
+                        to="/dashboard/inbox"
+                        className={({ isActive }) => (isActive ? 'active-link' : '')}
+                    >
+                        <i className="pi pi-bell"></i> Inbox
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink
                         to="/dashboard/calendar"
                         className={({ isActive }) => (isActive ? 'active-link' : '')}
                     >
@@ -41,18 +49,18 @@ export default function DashboardMenu() {
                 </li>
                 <li>
                     <NavLink
-                        to="/dashboard/vacations"
+                        to="/dashboard/timeOff"
                         className={({ isActive }) => (isActive ? 'active-link' : '')}
                     >
-                        <i className="pi pi-car"></i> Vacations
+                        <i className="pi pi-car"></i> TimeOff
                     </NavLink>
                 </li>
                 <li>
                     <NavLink
-                        to="/dashboard/notifications"
+                        to="/dashboard/company"
                         className={({ isActive }) => (isActive ? 'active-link' : '')}
                     >
-                        <i className="pi pi-bell"></i> Notification
+                        <i className="pi pi-building"></i> Company
                     </NavLink>
                 </li>
             </ul>
