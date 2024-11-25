@@ -7,26 +7,26 @@ export interface User {
     email: string;
     password: string;
     role: string;
-    company: Company;
-    team: CompanyTeam;
 }
 
 // Company types
 export interface Company {
     companyId: string;
     name: string;
-    description: string;
+    description?: string;
     industry: string;
     image: string;
     teams: CompanyTeam[];
+    users: User[];
 }
 
 export interface CompanyTeam {
     teamId: string;
     name: string;
-    description: string;
+    description?: string;
     color: string;
     company: Company;
+    users: string[];
 }
 
 // TimeOff types
