@@ -25,7 +25,6 @@ export interface CompanyTeam {
     name: string;
     description?: string;
     color: string;
-    company: Company;
     users: string[];
 }
 

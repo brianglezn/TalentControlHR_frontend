@@ -1,8 +1,6 @@
 import { InputText } from 'primereact/inputtext';
 import { ColorPicker } from 'primereact/colorpicker';
 import { Button } from 'primereact/button';
-
-import './CompanyTeams.scss';
 import { CompanyTeam } from '@utils/types';
 
 interface CompanyTeamsProps {
@@ -19,17 +17,9 @@ export default function CompanyTeams({ teams, setTeams }: CompanyTeamsProps) {
                 name: '',
                 description: '',
                 color: '#000000',
-                company: {
-                    companyId: 'talentcontrol-id',
-                    name: 'TalentControl HR',
-                    description: 'Manage HR from one place',
-                    industry: 'Human Resources',
-                    image: '',
-                    teams: [],
-                },
+                users: [],
             },
         ]);
-
 
     return (
         <div>
@@ -38,7 +28,7 @@ export default function CompanyTeams({ teams, setTeams }: CompanyTeamsProps) {
                 <Button icon="pi pi-plus" label="New Team" onClick={handleAddTeam} />
             </div>
             {teams.map((team, index) => (
-                <div className="team-row" key={index}>
+                <div className="team-row" key={team.teamId}>
                     <div>
                         <label>Team Name</label>
                         <InputText
@@ -67,12 +57,10 @@ export default function CompanyTeams({ teams, setTeams }: CompanyTeamsProps) {
                             value={team.color}
                             onChange={(e) => {
                                 const updatedTeams = [...teams];
-                                const newValue = typeof e.value === 'string' ? e.value : '#000000';
-                                updatedTeams[index].color = newValue;
+                                updatedTeams[index].color = e.value as string;
                                 setTeams(updatedTeams);
                             }}
                         />
-
                     </div>
                 </div>
             ))}

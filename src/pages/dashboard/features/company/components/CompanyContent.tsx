@@ -16,7 +16,12 @@ export default function CompanyContent({ selectedSection, company, employees, se
         <section className="company-content">
             {selectedSection === 'general' && <CompanyGeneral company={company} setCompany={setCompany} />}
             {selectedSection === 'employees' && <CompanyEmployees employees={employees} />}
-            {selectedSection === 'teams' && <CompanyTeams teams={company.teams} setTeams={(teams) => setCompany({ ...company, teams })} />}
+            {selectedSection === 'teams' && (
+                <CompanyTeams
+                    teams={company.teams}
+                    setTeams={(teams) => setCompany({ ...company, teams })}
+                />
+            )}
         </section>
     );
 }
