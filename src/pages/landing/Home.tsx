@@ -42,7 +42,7 @@ export default function Home() {
     const handleSubmit = async () => {
         try {
             if (isLogin) {
-                await login({ email: formData.email, password: formData.password });
+                await login({ identifier: formData.email, password: formData.password });
                 toast.success('Login successful!');
                 setAuthenticated();
                 navigate('/dashboard');

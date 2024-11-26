@@ -15,11 +15,14 @@ export const register = async (data: { username: string; name: string; surnames:
     return response.json();
 };
 
-export const login = async (data: { email: string; password: string }) => {
+export const login = async (data: { identifier: string; password: string }) => {
     const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+            ...(data.identifier.includes('@') ? { email: data.identifier } : { username: data.identifier }),
+            password: data.password,
+        }),
         credentials: 'include',
     });
 
@@ -30,6 +33,7 @@ export const login = async (data: { email: string; password: string }) => {
 
     return response.json();
 };
+
 
 export const logout = async () => {
     const response = await fetch(`${API_URL}/api/auth/logout`, {
