@@ -34,7 +34,6 @@ export const login = async (data: { identifier: string; password: string }) => {
     return response.json();
 };
 
-
 export const logout = async () => {
     const response = await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',

@@ -40,11 +40,11 @@ export default function Dashboard() {
             <div className="dashboard-content">
                 <Outlet />
             </div>
-            {showModal && user && ( // Verifica que `user` no sea null antes de pasar como prop
+            {showModal && user && (
                 <Dialog
                     header="Join or Create a Company"
                     visible={showModal}
-                    onHide={() => {}}
+                    onHide={() => { }}
                     closable={false}
                     modal
                     className="p-fluid"
