@@ -1,6 +1,9 @@
 import { TabView, TabPanel } from 'primereact/tabview';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
+
+import './CreateJoinCompanyModal.scss';
 import { getAllCompanies, createCompany, addUserToCompany } from '@api/companies/companiesServices';
 import { User, Company } from '@utils/types';
 import { useState, useEffect } from 'react';
@@ -14,6 +17,7 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
     const [activeIndex, setActiveIndex] = useState(0);
     const [companyData, setCompanyData] = useState({ name: '', description: '', industry: '', image: '' });
     const [companies, setCompanies] = useState<Company[]>([]);
+    const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -49,10 +53,12 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
         }
     };
 
-    const handleJoinCompany = async (companyId: string) => {
+    const handleJoinCompany = async () => {
+        if (!selectedCompany) return;
+
         setLoading(true);
         try {
-            await addUserToCompany(companyId, user.userId);
+            await addUserToCompany(selectedCompany, user.userId);
             onCompanyAssociated({ ...user });
         } catch (error) {
             console.error('Error joining company:', error);
@@ -62,57 +68,75 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
     };
 
     return (
-        <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
+        <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} className="create-join-company-modal">
             <TabPanel header="Create a Company">
-                <div className="p-field">
-                    <label htmlFor="name">Company Name</label>
-                    <InputText
-                        id="name"
-                        value={companyData.name}
-                        onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
-                    />
+                <div className="input-group">
+                    <span className="p-float-label">
+                        <InputText
+                            id="name"
+                            value={companyData.name}
+                            onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
+                        />
+                        <label htmlFor="name">Company Name</label>
+                    </span>
                 </div>
-                <div className="p-field">
-                    <label htmlFor="description">Description</label>
-                    <InputText
-                        id="description"
-                        value={companyData.description}
-                        onChange={(e) => setCompanyData({ ...companyData, description: e.target.value })}
-                    />
+                <div className="input-group">
+                    <span className="p-float-label">
+                        <InputText
+                            id="description"
+                            value={companyData.description}
+                            onChange={(e) => setCompanyData({ ...companyData, description: e.target.value })}
+                        />
+                        <label htmlFor="description">Description</label>
+                    </span>
                 </div>
-                <div className="p-field">
-                    <label htmlFor="industry">Industry</label>
-                    <InputText
-                        id="industry"
-                        value={companyData.industry}
-                        onChange={(e) => setCompanyData({ ...companyData, industry: e.target.value })}
-                    />
+                <div className="input-group">
+                    <span className="p-float-label">
+                        <InputText
+                            id="industry"
+                            value={companyData.industry}
+                            onChange={(e) => setCompanyData({ ...companyData, industry: e.target.value })}
+                        />
+                        <label htmlFor="industry">Industry</label>
+                    </span>
                 </div>
-                <div className="p-field">
-                    <label htmlFor="image">Image URL</label>
-                    <InputText
-                        id="image"
-                        value={companyData.image}
-                        onChange={(e) => setCompanyData({ ...companyData, image: e.target.value })}
-                    />
+                <div className="input-group">
+                    <span className="p-float-label">
+                        <InputText
+                            id="image"
+                            value={companyData.image}
+                            onChange={(e) => setCompanyData({ ...companyData, image: e.target.value })}
+                        />
+                        <label htmlFor="image">Image URL</label>
+                    </span>
                 </div>
                 <Button label="Create" icon="pi pi-check" onClick={handleCreateCompany} loading={loading} />
             </TabPanel>
 
             <TabPanel header="Join a Company">
-                <ul className="p-list">
-                    {companies.map((company) => (
-                        <li key={company.companyId} className="p-d-flex p-jc-between p-ai-center">
-                            <span>{company.name}</span>
-                            <Button
-                                label="Join"
-                                icon="pi pi-sign-in"
-                                className="p-button-outlined"
-                                onClick={() => handleJoinCompany(company.companyId)}
-                            />
-                        </li>
-                    ))}
-                </ul>
+                {companies.length > 0 ? (
+                    <>
+                        <Dropdown
+                            value={selectedCompany}
+                            options={companies.map((company) => ({
+                                label: company.name,
+                                value: company.companyId,
+                            }))}
+                            onChange={(e) => setSelectedCompany(e.value)}
+                            placeholder="Select a Company"
+                            className="p-dropdown"
+                        />
+                        <Button
+                            label="Join"
+                            icon="pi pi-sign-in"
+                            className="p-button-outlined"
+                            onClick={handleJoinCompany}
+                            disabled={!selectedCompany || loading}
+                        />
+                    </>
+                ) : (
+                    <p className="no-companies">No companies available to join</p>
+                )}
             </TabPanel>
         </TabView>
     );
