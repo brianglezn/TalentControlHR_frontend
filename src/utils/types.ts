@@ -1,25 +1,30 @@
 // User types
 export interface User {
-    userId: string;
+    _id: string;
     username: string;
     name: string;
     surnames: string;
     email: string;
-    password: string;
-    role: string;
-    company?: string
+    password?: never;
 }
 
 // Company types
 export interface Company {
-    companyId: string;
+    _id: string;
     name: string;
     description?: string;
     industry: string;
     image: string;
+    users: CompanyUser[];
     teams: CompanyTeam[];
-    users: User[];
 }
+
+export interface CompanyUser {
+    userId: string;
+    roles: UserRole[];
+}
+
+export type UserRole = 'admin' | 'employee';
 
 export interface CompanyTeam {
     teamId: string;
@@ -31,7 +36,7 @@ export interface CompanyTeam {
 
 // TimeOff types
 export interface Attendance {
-    attendanceId: string;
+    _id: string;
     user: User;
     date: Date;
     endDate?: Date;
@@ -45,7 +50,7 @@ export type AttendanceStatus = 'Pending' | 'Approved' | 'Denied';
 
 // Shifts types
 export interface Shift {
-    shiftId: string;
+    _id: string;
     name: string;
     user: User;
     team: CompanyTeam;

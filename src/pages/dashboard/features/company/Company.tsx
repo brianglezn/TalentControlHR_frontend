@@ -15,7 +15,7 @@ export default function Company() {
     useEffect(() => {
         const fetchCompanyData = async () => {
             try {
-                const companyId = 'talentcontrol-id'; // Este ID debería provenir del contexto de autenticación o parámetros de ruta.
+                const companyId = 'talentcontrol-id';
                 const fetchedCompany = await getCompanyById(companyId);
                 const fetchedEmployees = await getUsersFromCompany(companyId);
 

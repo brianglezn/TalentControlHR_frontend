@@ -13,6 +13,15 @@ interface CreateJoinCompanyModalProps {
     onCompanyAssociated: (updatedUser: User) => void;
 }
 
+const INDUSTRIES = [
+    { label: 'Technology', value: 'Technology' },
+    { label: 'Finance', value: 'Finance' },
+    { label: 'Healthcare', value: 'Healthcare' },
+    { label: 'Education', value: 'Education' },
+    { label: 'Retail', value: 'Retail' },
+    { label: 'Other', value: 'Other' },
+];
+
 export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: CreateJoinCompanyModalProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [companyData, setCompanyData] = useState({ name: '', description: '', industry: '', image: '' });
@@ -40,32 +49,46 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
             alert('Name and Industry are required');
             return;
         }
-
+    
+        if (!user._id) {
+            console.error('User ID is undefined');
+            return;
+        }
+    
         setLoading(true);
         try {
-            const newCompany: Company = await createCompany(companyData);
-            await addUserToCompany(newCompany.companyId, user.userId);
+            const newCompany = await createCompany(companyData);
+            if (!newCompany || !newCompany._id) {
+                throw new Error('Failed to create company');
+            }
+    
+            await addUserToCompany(newCompany._id, user._id, ['admin']);
+    
             onCompanyAssociated({ ...user });
         } catch (error) {
-            console.error('Error creating company:', error);
+            console.error('Error creating company or associating user:', error);
         } finally {
             setLoading(false);
         }
     };
-
+  
     const handleJoinCompany = async () => {
-        if (!selectedCompany) return;
-
+        if (!selectedCompany || !user._id) {
+            console.error('Selected company or userId is missing');
+            return;
+        }
+    
         setLoading(true);
         try {
-            await addUserToCompany(selectedCompany, user.userId);
+            await addUserToCompany(selectedCompany, user._id, ['employee']);
+    
             onCompanyAssociated({ ...user });
         } catch (error) {
             console.error('Error joining company:', error);
         } finally {
             setLoading(false);
         }
-    };
+    };    
 
     return (
         <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} className="create-join-company-modal">
@@ -92,22 +115,16 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
                 </div>
                 <div className="input-group">
                     <span className="p-float-label">
-                        <InputText
+                        <Dropdown
                             id="industry"
                             value={companyData.industry}
-                            onChange={(e) => setCompanyData({ ...companyData, industry: e.target.value })}
+                            options={INDUSTRIES}
+                            onChange={(e) => setCompanyData({ ...companyData, industry: e.value })}
+                            filter
+                            placeholder="Select an Industry"
+                            className="p-dropdown"
                         />
                         <label htmlFor="industry">Industry</label>
-                    </span>
-                </div>
-                <div className="input-group">
-                    <span className="p-float-label">
-                        <InputText
-                            id="image"
-                            value={companyData.image}
-                            onChange={(e) => setCompanyData({ ...companyData, image: e.target.value })}
-                        />
-                        <label htmlFor="image">Image URL</label>
                     </span>
                 </div>
                 <Button label="Create" icon="pi pi-check" onClick={handleCreateCompany} loading={loading} />
@@ -120,7 +137,7 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
                             value={selectedCompany}
                             options={companies.map((company) => ({
                                 label: company.name,
-                                value: company.companyId,
+                                value: company._id,
                             }))}
                             onChange={(e) => setSelectedCompany(e.value)}
                             placeholder="Select a Company"
