@@ -14,10 +14,12 @@ interface LoginFormProps {
 export default function LoginForm({ switchToRegister }: LoginFormProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login: setAuthenticated } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             await login({ identifier: email, password });
             toast.success('Login successful!');
@@ -29,6 +31,8 @@ export default function LoginForm({ switchToRegister }: LoginFormProps) {
             } else {
                 toast.error('An unexpected error occurred');
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -52,7 +56,12 @@ export default function LoginForm({ switchToRegister }: LoginFormProps) {
                     <label htmlFor="password">Password</label>
                 </span>
             </div>
-            <Button label="Login" className="sign-in-button" onClick={handleSubmit} />
+            <Button
+                label="Login"
+                className="sign-in-button"
+                onClick={handleSubmit}
+                loading={loading}
+            />
             <p className="signup-text">
                 Don’t have an account?{' '}
                 <span onClick={switchToRegister} className="toggle-text">

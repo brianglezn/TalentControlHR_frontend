@@ -11,7 +11,7 @@ export default function Dashboard() {
     const { user, company, setUser, setCompany, isLoading } = useUserCompany();
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return null;
     }
 
     const handleCompanyAssociation = (updatedUser: User, updatedCompany: Company) => {

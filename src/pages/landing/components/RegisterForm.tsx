@@ -18,6 +18,7 @@ export default function RegisterForm({ switchToLogin }: RegisterFormProps) {
         password: '',
         confirmPassword: '',
     });
+    const [loading, setLoading] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -25,6 +26,7 @@ export default function RegisterForm({ switchToLogin }: RegisterFormProps) {
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             if (formData.password !== formData.confirmPassword) {
                 toast.error('Passwords do not match');
@@ -45,6 +47,8 @@ export default function RegisterForm({ switchToLogin }: RegisterFormProps) {
             } else {
                 toast.error('An unexpected error occurred');
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -100,7 +104,12 @@ export default function RegisterForm({ switchToLogin }: RegisterFormProps) {
                     <label htmlFor="confirmPassword">Confirm Password</label>
                 </span>
             </div>
-            <Button label="Sign Up" className="sign-in-button" onClick={handleSubmit} />
+            <Button
+                label="Sign Up"
+                className="sign-in-button"
+                onClick={handleSubmit}
+                loading={loading}
+            />
             <p className="signup-text">
                 Already have an account?{' '}
                 <span onClick={switchToLogin} className="toggle-text">
