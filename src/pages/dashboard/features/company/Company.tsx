@@ -3,43 +3,38 @@ import { toast } from 'react-hot-toast';
 
 import './Company.scss';
 import type { Company, User } from '@utils/types';
-import { getCompanyById, getUsersFromCompany } from '@api/companies/companiesServices';
+import { getUsersFromCompany } from '@api/companies/companiesServices';
 import CompanyMenu from './components/CompanyMenu';
 import CompanyContent from './components/CompanyContent';
+import { useUserCompany } from '@context/useUserCompany';
 
 export default function Company() {
     const [selectedSection, setSelectedSection] = useState('general');
-    const [company, setCompany] = useState<Company | null>(null);
     const [employees, setEmployees] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { company, setCompany } = useUserCompany();
 
     useEffect(() => {
-        const fetchCompanyData = async () => {
-            try {
-                const companyId = 'talentcontrol-id';
-                const fetchedCompany = await getCompanyById(companyId);
-                const fetchedEmployees = await getUsersFromCompany(companyId);
+        const fetchEmployees = async () => {
+            if (!company?._id) {
+                toast.error('Company ID is missing.');
+                return;
+            }
 
-                setCompany(fetchedCompany);
+            try {
+                const fetchedEmployees = await getUsersFromCompany(company._id);
                 setEmployees(fetchedEmployees);
                 toast.success('Company data loaded successfully');
             } catch (error) {
                 console.error('Error fetching company data:', error);
                 toast.error('Failed to load company data');
-            } finally {
-                setLoading(false);
             }
         };
 
-        fetchCompanyData();
-    }, []);
-
-    if (loading) {
-        return <div>Loading company data...</div>;
-    }
+        fetchEmployees();
+    }, [company]);
 
     if (!company) {
-        return <div>Error loading company data. Please try again later.</div>;
+        return null;
     }
 
     return (
