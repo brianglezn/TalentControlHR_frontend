@@ -2,6 +2,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
+import { toast } from 'react-hot-toast';
 
 import './CreateJoinCompanyModal.scss';
 import { getAllCompanies, createCompany, addUserToCompany } from '@api/companies/companiesServices';
@@ -40,55 +41,53 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
             const fetchedCompanies: Company[] = await getAllCompanies();
             setCompanies(fetchedCompanies);
         } catch (error) {
+            toast.error('Error fetching companies. Please try again later.');
             console.error('Error fetching companies:', error);
         }
     };
 
     const handleCreateCompany = async () => {
         if (!companyData.name || !companyData.industry) {
-            alert('Name and Industry are required');
+            toast.error('Name and Industry are required.');
             return;
         }
-    
-        if (!user._id) {
-            console.error('User ID is undefined');
-            return;
-        }
-    
+
         setLoading(true);
         try {
-            const newCompany = await createCompany(companyData);
-            if (!newCompany || !newCompany._id) {
-                throw new Error('Failed to create company');
+            const response = await createCompany(companyData);
+
+            if (response.error) {
+                toast.error(response.message);
+            } else {
+                toast.success(response.message);
+                onCompanyAssociated({ ...user });
             }
-    
-            await addUserToCompany(newCompany._id, user._id, ['admin']);
-    
-            onCompanyAssociated({ ...user });
         } catch (error) {
-            console.error('Error creating company or associating user:', error);
+            toast.error('An unexpected error occurred. Please try again.');
+            console.error('Error:', error);
         } finally {
             setLoading(false);
         }
     };
-  
+
     const handleJoinCompany = async () => {
         if (!selectedCompany || !user._id) {
-            console.error('Selected company or userId is missing');
+            toast.error('Please select a company to join.');
             return;
         }
-    
+
         setLoading(true);
         try {
             await addUserToCompany(selectedCompany, user._id, ['employee']);
-    
+            toast.success('You have successfully joined the company!');
             onCompanyAssociated({ ...user });
         } catch (error) {
+            toast.error('Error joining company. Please try again.');
             console.error('Error joining company:', error);
         } finally {
             setLoading(false);
         }
-    };    
+    };
 
     return (
         <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)} className="create-join-company-modal">
