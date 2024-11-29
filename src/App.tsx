@@ -13,29 +13,33 @@ const Company = React.lazy(() => import('@pages/dashboard/features/company/Compa
 
 import { ProtectedRoute } from '@components/layout/ProtectedRoute';
 import { AuthProvider } from '@context/AuthContext';
+import { UserCompanyProvider } from '@context/UserCompanyContext';
 
 export default function App() {
     return (
         <AuthProvider>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route
-                    path="/dashboard/*"
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<DashHome />} />
-                    <Route path="calendar" element={<Calendar />} />
-                    <Route path="shifts" element={<Shifts />} />
-                    <Route path="timeOff" element={<TimeOff />} />
-                    <Route path="user-settings" element={<UserSettings />} />
-                    <Route path="inbox" element={<Inbox />} />
-                    <Route path="company" element={<Company />} />
-                </Route>
-            </Routes>
+
+            <UserCompanyProvider>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route
+                        path="/dashboard/*"
+                        element={
+                            <ProtectedRoute>
+                                <Dashboard />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route index element={<DashHome />} />
+                        <Route path="calendar" element={<Calendar />} />
+                        <Route path="shifts" element={<Shifts />} />
+                        <Route path="timeOff" element={<TimeOff />} />
+                        <Route path="user-settings" element={<UserSettings />} />
+                        <Route path="inbox" element={<Inbox />} />
+                        <Route path="company" element={<Company />} />
+                    </Route>
+                </Routes>
+            </UserCompanyProvider>
         </AuthProvider>
     );
 }

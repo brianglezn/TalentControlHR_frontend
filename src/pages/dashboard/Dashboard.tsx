@@ -1,37 +1,22 @@
-import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Dialog } from 'primereact/dialog';
-import DashboardMenu from '@pages/dashboard/components/DashboardMenu';
-import CreateJoinCompanyModal from '@pages/dashboard/components/CreateJoinCompanyModal';
-import { getCurrentUser } from '@api/user/userServices';
-import { User } from '@utils/types';
 
 import './Dashboard.scss';
+import DashboardMenu from '@pages/dashboard/components/DashboardMenu';
+import CreateJoinCompanyModal from '@pages/dashboard/components/CreateJoinCompanyModal';
+import useUserCompany from '@context/useUserCompany';
+import { User, Company } from '@utils/types'
 
 export default function Dashboard() {
-    const [user, setUser] = useState<User | null>(null);
-    const [showModal, setShowModal] = useState(false);
+    const { user, company, setUser, setCompany, isLoading } = useUserCompany();
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const fetchedUser = await getCurrentUser();
-                setUser(fetchedUser);
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
-                if (!fetchedUser.company) {
-                    setShowModal(true);
-                }
-            } catch (error) {
-                console.error('Error fetching current user:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
-    const handleCompanyAssociation = (updatedUser: User) => {
+    const handleCompanyAssociation = (updatedUser: User, updatedCompany: Company) => {
         setUser(updatedUser);
-        setShowModal(false);
+        setCompany(updatedCompany);
     };
 
     return (
@@ -40,16 +25,19 @@ export default function Dashboard() {
             <div className="dashboard-content">
                 <Outlet />
             </div>
-            {showModal && user && (
+            {!company && user && (
                 <Dialog
                     header="Join or Create a Company"
-                    visible={showModal}
+                    visible={!company}
                     onHide={() => { }}
                     closable={false}
                     modal
                     className="p-fluid"
                 >
-                    <CreateJoinCompanyModal user={user} onCompanyAssociated={handleCompanyAssociation} />
+                    <CreateJoinCompanyModal
+                        user={user}
+                        onCompanyAssociated={handleCompanyAssociation}
+                    />
                 </Dialog>
             )}
         </div>

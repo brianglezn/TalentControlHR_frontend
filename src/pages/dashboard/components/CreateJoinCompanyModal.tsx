@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 
 interface CreateJoinCompanyModalProps {
     user: User;
-    onCompanyAssociated: (updatedUser: User) => void;
+    onCompanyAssociated: (updatedUser: User, updatedCompany: Company) => void;
 }
 
 const INDUSTRIES = [
@@ -59,12 +59,15 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
             if (response.error) {
                 toast.error(response.message);
             } else {
-                toast.success(response.message);
-                onCompanyAssociated({ ...user });
+                const newCompany = response.company;
+                
+                await addUserToCompany(newCompany._id, user._id, ['admin']);
+                toast.success('Company created successfully and you are now an admin!');
+                onCompanyAssociated(user, newCompany);
             }
         } catch (error) {
             toast.error('An unexpected error occurred. Please try again.');
-            console.error('Error:', error);
+            console.error('Error in handleCreateCompany:', error);
         } finally {
             setLoading(false);
         }
@@ -78,9 +81,14 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
 
         setLoading(true);
         try {
+            const updatedCompany = companies.find((company) => company._id === selectedCompany);
+            if (!updatedCompany) {
+                throw new Error('Selected company not found.');
+            }
+
             await addUserToCompany(selectedCompany, user._id, ['employee']);
-            toast.success('You have successfully joined the company!');
-            onCompanyAssociated({ ...user });
+            toast.success('You have successfully joined the company as an employee!');
+            onCompanyAssociated(user, updatedCompany);
         } catch (error) {
             toast.error('Error joining company. Please try again.');
             console.error('Error joining company:', error);

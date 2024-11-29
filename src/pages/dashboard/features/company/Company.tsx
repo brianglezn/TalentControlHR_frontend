@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 import './Company.scss';
 import type { Company, User } from '@utils/types';
@@ -21,8 +22,10 @@ export default function Company() {
 
                 setCompany(fetchedCompany);
                 setEmployees(fetchedEmployees);
+                toast.success('Company data loaded successfully');
             } catch (error) {
                 console.error('Error fetching company data:', error);
+                toast.error('Failed to load company data');
             } finally {
                 setLoading(false);
             }
