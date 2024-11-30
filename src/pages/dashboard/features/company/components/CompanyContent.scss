@@ -8,8 +8,8 @@
     box-shadow: vars.$shadow_color 0px 1px 5px;
 
     form {
-        div {
-            margin-bottom: 1.5rem;
+        >div {
+            margin-bottom: 2rem;
 
             label {
                 display: block;
@@ -21,8 +21,6 @@
             .p-inputtext {
                 width: 100%;
                 padding: 0.5rem;
-                border: 1px solid #ccc;
-                border-radius: 4px;
             }
         }
     }

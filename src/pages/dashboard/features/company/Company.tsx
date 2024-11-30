@@ -22,7 +22,6 @@ export default function Company() {
             try {
                 const fetchedEmployees = await getUsersFromCompany(company._id);
                 setEmployees(fetchedEmployees);
-                toast.success('Company data loaded successfully');
             } catch (error) {
                 console.error('Error fetching company data:', error);
                 toast.error('Failed to load company data');

@@ -6,22 +6,13 @@ import { toast } from 'react-hot-toast';
 
 import './CreateJoinCompanyModal.scss';
 import { getAllCompanies, createCompany, addUserToCompany } from '@api/companies/companiesServices';
-import { User, Company } from '@utils/types';
+import { User, Company, INDUSTRIES, CompanyIndustry } from '@utils/types';
 import { useState, useEffect } from 'react';
 
 interface CreateJoinCompanyModalProps {
     user: User;
     onCompanyAssociated: (updatedUser: User, updatedCompany: Company) => void;
 }
-
-const INDUSTRIES = [
-    { label: 'Technology', value: 'Technology' },
-    { label: 'Finance', value: 'Finance' },
-    { label: 'Healthcare', value: 'Healthcare' },
-    { label: 'Education', value: 'Education' },
-    { label: 'Retail', value: 'Retail' },
-    { label: 'Other', value: 'Other' },
-];
 
 export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: CreateJoinCompanyModalProps) {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -60,7 +51,7 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
                 toast.error(response.message);
             } else {
                 const newCompany = response.company;
-                
+
                 await addUserToCompany(newCompany._id, user._id, ['admin']);
                 toast.success('Company created successfully and you are now an admin!');
                 onCompanyAssociated(user, newCompany);
@@ -124,7 +115,7 @@ export default function CreateJoinCompanyModal({ user, onCompanyAssociated }: Cr
                     <span className="p-float-label">
                         <Dropdown
                             id="industry"
-                            value={companyData.industry}
+                            value={companyData.industry as CompanyIndustry}
                             options={INDUSTRIES}
                             onChange={(e) => setCompanyData({ ...companyData, industry: e.value })}
                             filter

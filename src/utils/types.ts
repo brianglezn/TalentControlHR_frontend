@@ -19,6 +19,17 @@ export interface Company {
     teams: CompanyTeam[];
 }
 
+export type CompanyIndustry = 'Technology' | 'Finance' | 'Healthcare' | 'Education' | 'Retail' | 'Other';
+
+export const INDUSTRIES: { label: string; value: CompanyIndustry }[] = [
+    { label: 'Technology', value: 'Technology' },
+    { label: 'Finance', value: 'Finance' },
+    { label: 'Healthcare', value: 'Healthcare' },
+    { label: 'Education', value: 'Education' },
+    { label: 'Retail', value: 'Retail' },
+    { label: 'Other', value: 'Other' },
+];
+
 export interface CompanyUser {
     userId: string;
     roles: UserRole[];

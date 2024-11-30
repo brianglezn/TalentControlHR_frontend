@@ -16,12 +16,31 @@
             .company-logo {
                 display: flex;
                 align-items: center;
+                justify-content: center;
+                width: 6rem;
+                height: 6rem;
+                border-radius: 50%;
+                background-color: vars.$primaryColor;
 
                 img {
-                    width: 6rem;
-                    height: 6rem;
+                    width: 100%;
+                    height: 100%;
                     border-radius: 50%;
                     object-fit: cover;
+                }
+
+                .placeholder-logo {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    height: 100%;
+                    font-size: 2rem;
+                    color: white;
+
+                    i {
+                        font-size: 3rem;
+                    }
                 }
             }
 
@@ -68,6 +87,10 @@
                 padding-top: 1rem;
 
                 .form-field {
+                    .p-dropdown {
+                        width: 100%;
+                    }
+
                     label {
                         color: vars.$terciaryTextColor;
                     }
@@ -78,7 +101,6 @@
                     justify-content: flex-end;
                     margin-top: 1.5rem;
                 }
-
             }
         }
     }

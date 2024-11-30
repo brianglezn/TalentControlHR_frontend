@@ -4,10 +4,11 @@ import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { ButtonGroup } from 'primereact/buttongroup';
 import { Tooltip } from 'primereact/tooltip';
+import { Dropdown } from 'primereact/dropdown';
+import { toast } from 'react-hot-toast';
 
 import './CompanyGeneral.scss';
-import { Company } from '@utils/types';
-import logoCompany from '@assets/images/logo.png';
+import { Company, INDUSTRIES, CompanyIndustry } from '@utils/types';
 
 interface CompanyGeneralProps {
     company: Company;
@@ -16,20 +17,27 @@ interface CompanyGeneralProps {
 
 export default function CompanyGeneral({ company, setCompany }: CompanyGeneralProps) {
     const [isEditing, setIsEditing] = useState(false);
+    const [localCompany, setLocalCompany] = useState(company);
 
     const handleFileUpload = (e: { files: File[] }) => {
         const file = e.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-                setCompany({ ...company, image: reader.result as string });
+                setLocalCompany({ ...localCompany, image: reader.result as string });
             };
             reader.readAsDataURL(file);
         }
     };
 
     const handleSave = () => {
-        console.log('Company data saved:', company);
+        setCompany(localCompany);
+        toast.success('Company data saved successfully');
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setLocalCompany(company);
         setIsEditing(false);
     };
 
@@ -41,10 +49,16 @@ export default function CompanyGeneral({ company, setCompany }: CompanyGeneralPr
             <div className="header">
                 <div className="company-info">
                     <div className="company-logo">
-                        <img src={company.image || logoCompany} alt="Company Logo" />
+                        {localCompany.image ? (
+                            <img src={localCompany.image} alt="Company Logo" />
+                        ) : (
+                            <div className="placeholder-logo">
+                                <i className="pi pi-building" />
+                            </div>
+                        )}
                     </div>
                     <div className="company-basic-info">
-                        <h1>{company.name}</h1>
+                        <h1>{localCompany.name}</h1>
                         <p>{`3 employees are part of this company`}</p>
                     </div>
                 </div>
@@ -74,9 +88,9 @@ export default function CompanyGeneral({ company, setCompany }: CompanyGeneralPr
                                 <span className="p-float-label">
                                     <InputText
                                         id="companyName"
-                                        value={company.name}
+                                        value={localCompany.name}
                                         onChange={(e) =>
-                                            setCompany({ ...company, name: e.target.value })
+                                            setLocalCompany({ ...localCompany, name: e.target.value })
                                         }
                                     />
                                     <label htmlFor="companyName">Company Name</label>
@@ -84,12 +98,14 @@ export default function CompanyGeneral({ company, setCompany }: CompanyGeneralPr
                             </div>
                             <div className="form-field">
                                 <span className="p-float-label">
-                                    <InputText
-                                        id="companyIndustry"
-                                        value={company.industry}
-                                        onChange={(e) =>
-                                            setCompany({ ...company, industry: e.target.value })
-                                        }
+                                    <Dropdown
+                                        id="industry"
+                                        value={localCompany.industry as CompanyIndustry}
+                                        options={INDUSTRIES}
+                                        onChange={(e) => setLocalCompany({ ...localCompany, industry: e.value })}
+                                        filter
+                                        placeholder="Select an Industry"
+                                        className="p-dropdown"
                                     />
                                     <label htmlFor="companyIndustry">Industry</label>
                                 </span>
@@ -105,6 +121,7 @@ export default function CompanyGeneral({ company, setCompany }: CompanyGeneralPr
                                     customUpload
                                     uploadHandler={handleFileUpload}
                                     className="file-upload"
+                                    disabled
                                 />
                             </div>
                             <div className="form-actions">
@@ -113,11 +130,15 @@ export default function CompanyGeneral({ company, setCompany }: CompanyGeneralPr
                                         className="save-button"
                                         icon="pi pi-check"
                                         onClick={handleSave}
+                                        tooltip="Save"
+                                        tooltipOptions={{ position: 'top' }}
                                     />
                                     <Button
                                         className="cancel-button"
                                         icon="pi pi-times"
-                                        onClick={() => setIsEditing(!isEditing)}
+                                        onClick={handleCancel}
+                                        tooltip="Cancel"
+                                        tooltipOptions={{ position: 'top' }}
                                     />
                                 </ButtonGroup>
                             </div>
