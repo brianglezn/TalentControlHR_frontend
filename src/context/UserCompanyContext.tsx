@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { getCurrentUser } from '@api/user/userServices';
 import { getAllCompanies } from '@api/companies/companiesServices';
+import { useAuth } from '@context/useAuth';
 import type { User, Company } from '@utils/types';
 
 interface UserCompanyContextProps {
@@ -14,12 +15,18 @@ interface UserCompanyContextProps {
 const UserCompanyContext = createContext<UserCompanyContextProps | undefined>(undefined);
 
 export const UserCompanyProvider = ({ children }: { children: ReactNode }) => {
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [company, setCompany] = useState<Company | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
+            if (authLoading || !isAuthenticated) {
+                return;
+            }
+
+            setIsLoading(true);
             try {
                 const fetchedUser = await getCurrentUser();
                 setUser(fetchedUser);
@@ -44,7 +51,11 @@ export const UserCompanyProvider = ({ children }: { children: ReactNode }) => {
         };
 
         fetchData();
-    }, []);
+    }, [authLoading, isAuthenticated]);
+
+    if (authLoading) {
+        return null;
+    }
 
     return (
         <UserCompanyContext.Provider value={{ user, company, setUser, setCompany, isLoading }}>

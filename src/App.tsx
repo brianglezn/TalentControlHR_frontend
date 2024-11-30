@@ -11,7 +11,7 @@ const UserSettings = React.lazy(() => import('@pages/dashboard/features/userSett
 const Inbox = React.lazy(() => import('@pages/dashboard/features/inbox/Inbox'));
 const Company = React.lazy(() => import('@pages/dashboard/features/company/Company'));
 
-import { ProtectedRoute } from '@components/layout/ProtectedRoute';
+import { ProtectedRoute } from '@context/ProtectedRoute';
 import { AuthProvider } from '@context/AuthContext';
 import { UserCompanyProvider } from '@context/UserCompanyContext';
 

@@ -11,12 +11,11 @@ import { useUserCompany } from '@context/useUserCompany';
 export default function Company() {
     const [selectedSection, setSelectedSection] = useState('general');
     const [employees, setEmployees] = useState<User[]>([]);
-    const { company, setCompany } = useUserCompany();
+    const { company, setCompany, isLoading } = useUserCompany();
 
     useEffect(() => {
         const fetchEmployees = async () => {
             if (!company?._id) {
-                toast.error('Company ID is missing.');
                 return;
             }
 
@@ -32,6 +31,10 @@ export default function Company() {
 
         fetchEmployees();
     }, [company]);
+
+    if (isLoading) {
+        return null;
+    }
 
     if (!company) {
         return null;

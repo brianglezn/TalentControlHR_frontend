@@ -5,7 +5,7 @@ import './Dashboard.scss';
 import DashboardMenu from '@pages/dashboard/components/DashboardMenu';
 import CreateJoinCompanyModal from '@pages/dashboard/components/CreateJoinCompanyModal';
 import useUserCompany from '@context/useUserCompany';
-import { User, Company } from '@utils/types'
+import { User, Company } from '@utils/types';
 
 export default function Dashboard() {
     const { user, company, setUser, setCompany, isLoading } = useUserCompany();
@@ -29,7 +29,7 @@ export default function Dashboard() {
                 <Dialog
                     header="Join or Create a Company"
                     visible={!company}
-                    onHide={() => { }}
+                    onHide={() => {}}
                     closable={false}
                     modal
                     className="p-fluid"
