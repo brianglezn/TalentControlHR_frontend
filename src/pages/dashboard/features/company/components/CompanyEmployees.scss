@@ -1,20 +1,47 @@
 @use '../../../../../../variables' as vars;
 
 .company-employees {
-    .action-bar {
+    .controls {
         display: flex;
-        align-items: center;
         gap: 1rem;
         margin-bottom: 1.5rem;
 
-        .search-input {
+        .control-item {
+            flex: 2;
+        }
+
+        .control-item:last-child {
             flex: 1;
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .team-dropdown {
+            width: 100%;
         }
     }
 
-    .p-datatable {
-        .p-datatable-thead > tr > th {
-            background-color: vars.$highlightBg;
+    .employees-list {
+        .employees-list-header {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+
+            .p-inputgroup {
+                width: auto;
+            }
+        }
+
+        .p-avatar-text {
+            font-size: 0.8rem;
+        }
+
+        .no-results {
+            text-align: center;
+            color: vars.$terciaryTextColor;
+            font-size: 1rem;
         }
     }
 }
