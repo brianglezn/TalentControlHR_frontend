@@ -19,10 +19,11 @@ export const UserCompanyProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [company, setCompany] = useState<Company | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasFetchedData, setHasFetchedData] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (authLoading || !isAuthenticated) {
+            if (authLoading || !isAuthenticated || hasFetchedData) {
                 return;
             }
 
@@ -41,6 +42,7 @@ export const UserCompanyProvider = ({ children }: { children: ReactNode }) => {
                         setCompany(userCompany);
                     }
                 }
+                setHasFetchedData(true);
             } catch (error) {
                 console.error('Error fetching user or company data:', error);
                 setUser(null);
@@ -51,7 +53,7 @@ export const UserCompanyProvider = ({ children }: { children: ReactNode }) => {
         };
 
         fetchData();
-    }, [authLoading, isAuthenticated]);
+    }, [authLoading, isAuthenticated, hasFetchedData]);
 
     if (authLoading) {
         return null;
