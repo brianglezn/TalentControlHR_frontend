@@ -31,25 +31,26 @@ export default function Company() {
         fetchEmployees();
     }, [company]);
 
-    const handleAddEmployee = async (newEmployeeEmail: string) => {
+    const handleAddEmployee = async (newEmployeeId: string) => {
         if (!company?._id) {
             toast.error('No company selected.');
             return;
         }
 
         try {
-            const response = await addUserToCompany(company._id, newEmployeeEmail, ['employee']);
+            const response = await addUserToCompany(company._id, newEmployeeId, ['employee']);
             if (response.error) {
                 toast.error(response.message);
                 return;
             }
 
-            const updatedEmployee = response.user;
-            setEmployees((prev) => [...prev, updatedEmployee]);
+            const updatedEmployees = await getUsersFromCompany(company._id);
+            setEmployees(updatedEmployees);
+
             toast.success('Employee added successfully!');
         } catch (error) {
-            console.error('Error adding employee:', error);
-            toast.error('Failed to add employee.');
+            console.error('Error adding employee to company:', error);
+            toast.error('Failed to add employee to company.');
         }
     };
 

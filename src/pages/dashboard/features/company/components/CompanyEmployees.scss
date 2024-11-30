@@ -45,3 +45,18 @@
         }
     }
 }
+
+.p-dialog {
+    .add-employee-form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        min-width: 350px;
+
+        input {
+            width: 100%;
+        }
+    }
+}

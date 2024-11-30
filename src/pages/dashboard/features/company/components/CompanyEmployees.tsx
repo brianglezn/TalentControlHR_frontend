@@ -6,10 +6,12 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Avatar } from 'primereact/avatar';
 import { InputText } from 'primereact/inputtext';
+import { toast } from 'react-hot-toast';
 
 import './CompanyEmployees.scss';
 import { User, Company, CompanyTeam } from '@utils/types';
 import avatarImg from '@assets/images/avatar.png';
+import { createUser } from '@api/user/userServices';
 
 interface CompanyEmployeesProps {
     employees: User[];
@@ -21,7 +23,13 @@ interface CompanyEmployeesProps {
 export default function CompanyEmployees({ employees, teams, company, onAddEmployee }: CompanyEmployeesProps) {
     const [globalFilter, setGlobalFilter] = useState<string | null>(null);
     const [isAddEmployeeDialogVisible, setIsAddEmployeeDialogVisible] = useState(false);
-    const [newEmployeeEmail, setNewEmployeeEmail] = useState('');
+    const [newEmployee, setNewEmployee] = useState({
+        name: '',
+        surnames: '',
+        email: '',
+        username: '',
+        password: '',
+    });
 
     const getEmployeeTeam = (employeeId: string) => {
         const team = teams.find((t) => t.users.includes(employeeId));
@@ -54,13 +62,15 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const rolesTemplate = (employee: User) => {
         const companyUser = company.users.find((user) => user.userId === employee._id);
+
         if (!companyUser || !companyUser.roles) {
-            return <span>No Roles</span>;
+            console.warn('No roles found for this user:', employee._id);
+            return <span>No roles assigned</span>;
         }
 
         return (
             <>
-                {companyUser.roles.map((role: string, index: number) => (
+                {companyUser.roles.map((role, index) => (
                     <Tag
                         key={index}
                         value={role}
@@ -75,14 +85,37 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
         );
     };
 
-    const handleAddEmployee = () => {
-        if (!newEmployeeEmail) {
+    const handleAddEmployee = async () => {
+        if (!newEmployee.name || !newEmployee.email || !newEmployee.password || !newEmployee.username) {
+            toast.error('All fields are required.');
             return;
         }
 
-        onAddEmployee(newEmployeeEmail);
-        setIsAddEmployeeDialogVisible(false);
-        setNewEmployeeEmail('');
+        try {
+            const createdUser = await createUser({
+                ...newEmployee,
+            });
+
+            if (!createdUser || !createdUser.userId) {
+                console.error('Failed to retrieve user ID from createUser response:', createdUser);
+                throw new Error('Failed to create user');
+            }
+            
+            await onAddEmployee(createdUser.userId);
+
+            setIsAddEmployeeDialogVisible(false);
+            setNewEmployee({
+                name: '',
+                surnames: '',
+                email: '',
+                username: '',
+                password: '',
+            });
+
+        } catch (error) {
+            console.error('Error adding employee:', error);
+            toast.error('Failed to add employee. Please try again.');
+        }
     };
 
     const renderHeader = () => {
@@ -94,7 +127,9 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         placeholder="Search employees"
                     />
-                    <span className="p-inputgroup-addon"><i className="pi pi-search" /></span>
+                    <span className="p-inputgroup-addon">
+                        <i className="pi pi-search" />
+                    </span>
                 </div>
                 <Button
                     label="Add Employee"
@@ -133,17 +168,50 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 <div className="add-employee-form">
                     <span className="p-float-label">
                         <InputText
-                            id="employeeEmail"
-                            value={newEmployeeEmail}
-                            onChange={(e) => setNewEmployeeEmail(e.target.value)}
+                            id="employeeName"
+                            value={newEmployee.name}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
                         />
-                        <label htmlFor="employeeEmail">Employee Email</label>
+                        <label htmlFor="employeeName">Name</label>
+                    </span>
+                    <span className="p-float-label mt-2">
+                        <InputText
+                            id="employeeSurnames"
+                            value={newEmployee.surnames}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, surnames: e.target.value })}
+                        />
+                        <label htmlFor="employeeSurnames">Surnames</label>
+                    </span>
+                    <span className="p-float-label mt-2">
+                        <InputText
+                            id="employeeEmail"
+                            value={newEmployee.email}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
+                        />
+                        <label htmlFor="employeeEmail">Email</label>
+                    </span>
+                    <span className="p-float-label mt-2">
+                        <InputText
+                            id="employeeUsername"
+                            value={newEmployee.username}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, username: e.target.value })}
+                        />
+                        <label htmlFor="employeeUsername">Username</label>
+                    </span>
+                    <span className="p-float-label mt-2">
+                        <InputText
+                            id="employeePassword"
+                            type="password"
+                            value={newEmployee.password}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, password: e.target.value })}
+                        />
+                        <label htmlFor="employeePassword">Password</label>
                     </span>
                     <Button
-                        label="Add"
+                        label="Create"
                         icon="pi pi-check"
                         onClick={handleAddEmployee}
-                        className="p-button-primary mt-2"
+                        className="p-button-primary mt-3"
                     />
                 </div>
             </Dialog>
