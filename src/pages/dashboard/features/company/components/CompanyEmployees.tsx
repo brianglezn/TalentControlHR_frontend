@@ -6,12 +6,14 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Avatar } from 'primereact/avatar';
 import { InputText } from 'primereact/inputtext';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { toast } from 'react-hot-toast';
 
 import './CompanyEmployees.scss';
 import { User, Company, CompanyTeam } from '@utils/types';
 import avatarImg from '@assets/images/avatar.png';
 import { createUser } from '@api/user/userServices';
+import { deleteUserFromCompany } from '@api/companies/companiesServices';
 import { useUserCompany } from '@context/useUserCompany';
 
 interface CompanyEmployeesProps {
@@ -87,6 +89,44 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
         );
     };
 
+    const actionTemplate = (employee: User) => (
+        <div className="action-buttons">
+            <i className="pi pi-pencil"
+                onClick={() => handleEditEmployee(employee)}></i>
+            <i className="pi pi-trash"
+                onClick={() => handleDeleteEmployee(employee)}></i>
+        </div>
+    );
+
+    const handleEditEmployee = (employee: User) => {
+        console.log(`Editing user: ${employee.name} ${employee.surnames}`);
+    };
+
+    const handleDeleteEmployee = (employee: User) => {
+        const companyUser = company.users.find((user) => user.userId === employee._id);
+    
+        if (companyUser && companyUser.roles.includes('admin')) {
+            toast.error('Admin users cannot be deleted.');
+            return;
+        }
+    
+        confirmDialog({
+            message: `Are you sure you want to delete ${employee.name} ${employee.surnames}?`,
+            header: 'Confirm Deletion',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await deleteUserFromCompany(company._id, employee._id);
+                    await updateCompany(company._id);
+                    toast.success('Employee deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting employee from company:', error);
+                    toast.error('Failed to delete employee. Please try again.');
+                }
+            },
+        });
+    };
+    
     const handleAddEmployee = async () => {
         if (!newEmployee.name || !newEmployee.email || !newEmployee.password || !newEmployee.username) {
             toast.error('All fields are required.');
@@ -161,9 +201,10 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 emptyMessage="No employees found."
             >
                 <Column body={imageTemplate} style={{ width: '5%' }} />
-                <Column header="Full Name" body={fullNameTemplate} field="name" />
-                <Column header="Roles" body={rolesTemplate} />
-                <Column header="Team" body={teamTemplate} sortable />
+                <Column header="Full Name" body={fullNameTemplate} field="name" style={{ width: '40%' }} />
+                <Column header="Roles" body={rolesTemplate} style={{ width: '25%' }} />
+                <Column header="Team" body={teamTemplate} sortable style={{ width: '25%' }} />
+                <Column body={actionTemplate} style={{ width: '5%' }} />
             </DataTable>
 
             <Dialog
@@ -221,6 +262,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     />
                 </div>
             </Dialog>
+            <ConfirmDialog />
         </div>
     );
 }

@@ -38,10 +38,19 @@
             font-size: 0.8rem;
         }
 
-        .no-results {
-            text-align: center;
-            color: vars.$terciaryTextColor;
-            font-size: 1rem;
+        .action-buttons {
+            display: flex;
+            justify-content: end;
+            gap: 0.5rem;
+
+            i {
+                font-size: 1.2rem;
+
+                &:hover {
+                    cursor: pointer;
+                    color: vars.$primaryColor;
+                }
+            }
         }
     }
 }
