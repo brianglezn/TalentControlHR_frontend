@@ -59,7 +59,7 @@ export default function CompanyGeneral({ company, setCompany }: CompanyGeneralPr
                     </div>
                     <div className="company-basic-info">
                         <h1>{localCompany.name}</h1>
-                        <p>{`3 employees are part of this company`}</p>
+                        <p>{`${company.users.length} ${company.users.length === 1 ? 'employee is' : 'employees are'} part of this company`}</p>
                     </div>
                 </div>
 
