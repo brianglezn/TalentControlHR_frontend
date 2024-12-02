@@ -21,6 +21,12 @@ export default function CompanyMenu({ selectedSection, setSelectedSection }: Com
                 >
                     Employees
                 </li>
+                <li
+                    className={selectedSection === 'teams' ? 'active' : ''}
+                    onClick={() => setSelectedSection('teams')}
+                >
+                    Teams
+                </li>
             </ul>
         </nav>
     );

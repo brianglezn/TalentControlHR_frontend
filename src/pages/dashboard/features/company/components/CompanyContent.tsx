@@ -2,6 +2,7 @@ import './CompanyContent.scss';
 import { Company, User } from '@utils/types';
 import CompanyGeneral from './CompanyGeneral';
 import CompanyEmployees from './CompanyEmployees';
+import CompanyTeams from './CompanyTeams';
 
 interface CompanyContentProps {
     selectedSection: string;
@@ -29,6 +30,10 @@ export default function CompanyContent({
                     teams={company.teams}
                     company={company}
                     onAddEmployee={onAddEmployee}
+                />
+            )}
+            {selectedSection === 'teams' && (
+                <CompanyTeams
                 />
             )}
         </section>
