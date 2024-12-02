@@ -10,6 +10,7 @@ interface UserCompanyContextProps {
     setUser: (user: User | null) => void;
     setCompany: (company: Company | null) => void;
     isLoading: boolean;
+    updateCompany: (companyId: string) => Promise<void>;
 }
 
 const UserCompanyContext = createContext<UserCompanyContextProps | undefined>(undefined);
@@ -55,12 +56,26 @@ export const UserCompanyProvider = ({ children }: { children: ReactNode }) => {
         fetchData();
     }, [authLoading, isAuthenticated, hasFetchedData]);
 
+    const updateCompany = async (companyId: string) => {
+        try {
+            const allCompanies: Company[] = await getAllCompanies();
+            const updatedCompany = allCompanies.find((company) => company._id === companyId);
+            if (updatedCompany) {
+                setCompany(updatedCompany);
+            }
+        } catch (error) {
+            console.error('Error updating company:', error);
+        }
+    };
+
     if (authLoading) {
         return null;
     }
 
     return (
-        <UserCompanyContext.Provider value={{ user, company, setUser, setCompany, isLoading }}>
+        <UserCompanyContext.Provider
+            value={{ user, company, setUser, setCompany, isLoading, updateCompany }}
+        >
             {children}
         </UserCompanyContext.Provider>
     );

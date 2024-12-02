@@ -12,6 +12,7 @@ import './CompanyEmployees.scss';
 import { User, Company, CompanyTeam } from '@utils/types';
 import avatarImg from '@assets/images/avatar.png';
 import { createUser } from '@api/user/userServices';
+import { useUserCompany } from '@context/useUserCompany';
 
 interface CompanyEmployeesProps {
     employees: User[];
@@ -23,6 +24,7 @@ interface CompanyEmployeesProps {
 export default function CompanyEmployees({ employees, teams, company, onAddEmployee }: CompanyEmployeesProps) {
     const [globalFilter, setGlobalFilter] = useState<string | null>(null);
     const [isAddEmployeeDialogVisible, setIsAddEmployeeDialogVisible] = useState(false);
+    const { updateCompany } = useUserCompany();
     const [newEmployee, setNewEmployee] = useState({
         name: '',
         surnames: '',
@@ -100,8 +102,10 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 console.error('Failed to retrieve user ID from createUser response:', createdUser);
                 throw new Error('Failed to create user');
             }
-            
+
             await onAddEmployee(createdUser.userId);
+
+            await updateCompany(company._id);
 
             setIsAddEmployeeDialogVisible(false);
             setNewEmployee({
@@ -112,6 +116,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 password: '',
             });
 
+            toast.success('Employee added successfully!');
         } catch (error) {
             console.error('Error adding employee:', error);
             toast.error('Failed to add employee. Please try again.');

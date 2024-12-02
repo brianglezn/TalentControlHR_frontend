@@ -11,7 +11,7 @@ import { useUserCompany } from '@context/useUserCompany';
 export default function Company() {
     const [selectedSection, setSelectedSection] = useState('general');
     const [employees, setEmployees] = useState<User[]>([]);
-    const { company, setCompany, isLoading } = useUserCompany();
+    const { company, setCompany, isLoading, updateCompany } = useUserCompany();
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -22,6 +22,8 @@ export default function Company() {
             try {
                 const fetchedEmployees = await getUsersFromCompany(company._id);
                 setEmployees(fetchedEmployees);
+
+                await updateCompany(company._id);
             } catch (error) {
                 console.error('Error fetching company data:', error);
                 toast.error('Failed to load company data');
@@ -29,7 +31,8 @@ export default function Company() {
         };
 
         fetchEmployees();
-    }, [company]);
+    }, [company, updateCompany]);
+
 
     const handleAddEmployee = async (newEmployeeId: string) => {
         if (!company?._id) {
