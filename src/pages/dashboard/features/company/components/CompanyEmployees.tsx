@@ -156,11 +156,12 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 paginator
                 rows={10}
                 globalFilter={globalFilter}
+                globalFilterFields={['name', 'surnames']}
                 header={header}
                 emptyMessage="No employees found."
             >
                 <Column body={imageTemplate} style={{ width: '5%' }} />
-                <Column header="Full Name" body={fullNameTemplate} />
+                <Column header="Full Name" body={fullNameTemplate} field="name" />
                 <Column header="Roles" body={rolesTemplate} />
                 <Column header="Team" body={teamTemplate} sortable />
             </DataTable>
