@@ -6,12 +6,17 @@ import DashboardMenu from '@pages/dashboard/components/DashboardMenu';
 import CreateJoinCompanyModal from '@pages/dashboard/components/CreateJoinCompanyModal';
 import useUserCompany from '@context/useUserCompany';
 import { User, Company } from '@utils/types';
+import logo from '@assets/images/logo.png';
 
 export default function Dashboard() {
     const { user, company, setUser, setCompany, isLoading } = useUserCompany();
 
     if (isLoading) {
-        return null;
+        return (
+            <div className="loading-container">
+                <img src={logo} alt="App Logo" className="loading-logo" />
+            </div>
+        );
     }
 
     const handleCompanyAssociation = (updatedUser: User, updatedCompany: Company) => {
@@ -29,7 +34,7 @@ export default function Dashboard() {
                 <Dialog
                     header="Join or Create a Company"
                     visible={!company}
-                    onHide={() => {}}
+                    onHide={() => { }}
                     closable={false}
                     modal
                     className="p-fluid"
