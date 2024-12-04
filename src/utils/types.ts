@@ -35,7 +35,7 @@ export interface CompanyUser {
     roles: UserRole[];
 }
 
-export type UserRole = 'admin' | 'employee';
+export type UserRole = 'admin' | 'manager' | 'employee';
 
 export interface CompanyTeam {
     teamId: string;

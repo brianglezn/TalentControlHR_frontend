@@ -187,3 +187,31 @@ export const deleteTeamFromCompany = async (id: string, teamId: string) => {
         throw error;
     }
 };
+
+export const deleteUserFromTeam = async (companyId: string, teamId: string, userId: string) => {
+    try {
+        const response = await fetch(`${API_URL}/api/companies/${companyId}/teams/${teamId}/${userId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to delete user from team');
+        return response.json();
+    } catch (error) {
+        console.error('Error deleting user from team:', error);
+        throw error;
+    }
+};
+
+export const addUserToTeam = async (companyId: string, teamId: string, userId: string) => {
+    try {
+        const response = await fetch(`${API_URL}/api/companies/${companyId}/teams/${teamId}/${userId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to add user to team');
+        return response.json();
+    } catch (error) {
+        console.error('Error adding user to team:', error);
+        throw error;
+    }
+};

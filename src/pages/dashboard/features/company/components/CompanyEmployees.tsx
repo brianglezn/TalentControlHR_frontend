@@ -8,12 +8,13 @@ import { Avatar } from 'primereact/avatar';
 import { InputText } from 'primereact/inputtext';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { toast } from 'react-hot-toast';
+import { MultiSelect } from 'primereact/multiselect';
 
 import './CompanyEmployees.scss';
 import { User, Company, CompanyTeam } from '@utils/types';
 import avatarImg from '@assets/images/avatar.png';
 import { createUser } from '@api/user/userServices';
-import { deleteUserFromCompany } from '@api/companies/companiesServices';
+import { addUserToTeam, deleteUserFromCompany, deleteUserFromTeam, updateUserRolesInCompany } from '@api/companies/companiesServices';
 import { useUserCompany } from '@context/useUserCompany';
 
 interface CompanyEmployeesProps {
@@ -26,6 +27,10 @@ interface CompanyEmployeesProps {
 export default function CompanyEmployees({ employees, teams, company, onAddEmployee }: CompanyEmployeesProps) {
     const [globalFilter, setGlobalFilter] = useState<string | null>(null);
     const [isAddEmployeeDialogVisible, setIsAddEmployeeDialogVisible] = useState(false);
+    const [isEditEmployeeDialogVisible, setIsEditEmployeeDialogVisible] = useState(false);
+    const [editingEmployee, setEditingEmployee] = useState<
+        Partial<User> & { roles?: string[]; team?: { name: string; teamId: string } | null } | null
+    >(null);
     const { updateCompany } = useUserCompany();
     const [newEmployee, setNewEmployee] = useState({
         name: '',
@@ -38,8 +43,8 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
     const getEmployeeTeam = (employeeId: string) => {
         const team = teams.find((t) => t?.users?.includes(employeeId));
         return team
-            ? { name: team.name, color: team.color }
-            : { name: 'No Team', color: '#6b7280' };
+            ? { teamId: team.teamId, name: team.name, color: team.color }
+            : { teamId: '', name: 'No Team', color: '#6b7280' };
     };
 
     const imageTemplate = (employee: User) => (
@@ -61,9 +66,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const teamTemplate = (employee: User) => {
         const team = getEmployeeTeam(employee._id);
-        return (
-            <Tag value={team.name} style={{ backgroundColor: team.color, color: '#fff' }} />
-        );
+        return <Tag value={team.name} style={{ backgroundColor: team.color, color: '#fff' }} />;
     };
 
     const rolesTemplate = (employee: User) => {
@@ -93,41 +96,25 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const actionTemplate = (employee: User) => (
         <div className="action-buttons">
-            <i className="pi pi-pencil"
-                onClick={() => handleEditEmployee(employee)}></i>
-            <i className="pi pi-trash"
-                onClick={() => handleDeleteEmployee(employee)}></i>
+            <i
+                className="pi pi-pencil"
+                onClick={() => {
+                    const companyUser = company.users.find((user) => user.userId === employee._id);
+                    setEditingEmployee({
+                        _id: employee._id,
+                        name: employee.name,
+                        surnames: employee.surnames,
+                        email: employee.email,
+                        username: employee.username,
+                        roles: companyUser?.roles || [],
+                        team: getEmployeeTeam(employee._id) || null,
+                    });
+                    setIsEditEmployeeDialogVisible(true);
+                }}
+            ></i>
+            <i className="pi pi-trash" onClick={() => handleDeleteEmployee(employee)}></i>
         </div>
     );
-
-    const handleEditEmployee = (employee: User) => {
-        console.log(`Editing user: ${employee.name} ${employee.surnames}`);
-    };
-
-    const handleDeleteEmployee = (employee: User) => {
-        const companyUser = company.users.find((user) => user.userId === employee._id);
-
-        if (companyUser && companyUser.roles.includes('admin')) {
-            toast.error('Admin users cannot be deleted.');
-            return;
-        }
-
-        confirmDialog({
-            message: `Are you sure you want to delete ${employee.name} ${employee.surnames}?`,
-            header: 'Confirm Deletion',
-            icon: 'pi pi-exclamation-triangle',
-            accept: async () => {
-                try {
-                    await deleteUserFromCompany(company._id, employee._id);
-                    await updateCompany(company._id);
-                    toast.success('Employee deleted successfully!');
-                } catch (error) {
-                    console.error('Error deleting employee from company:', error);
-                    toast.error('Failed to delete employee. Please try again.');
-                }
-            },
-        });
-    };
 
     const handleAddEmployee = async () => {
         if (!newEmployee.name || !newEmployee.email || !newEmployee.password || !newEmployee.username) {
@@ -163,6 +150,61 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             console.error('Error adding employee:', error);
             toast.error('Failed to add employee. Please try again.');
         }
+    };
+
+    const handleEditEmployee = async () => {
+        if (!editingEmployee || !editingEmployee._id) return;
+
+        try {
+            // Actualización de roles
+            if (editingEmployee.roles) {
+                await updateUserRolesInCompany(company._id, editingEmployee._id, editingEmployee.roles);
+            }
+
+            // Gestión de equipo
+            const currentTeam = teams.find((team) => team.users?.includes(editingEmployee._id));
+            if (currentTeam?.teamId !== editingEmployee.team?.teamId) {
+                if (currentTeam) {
+                    await deleteUserFromTeam(company._id, currentTeam.teamId, editingEmployee._id);
+                }
+                if (editingEmployee.team?.teamId) {
+                    await addUserToTeam(company._id, editingEmployee.team.teamId, editingEmployee._id);
+                }
+            }
+
+            await updateCompany(company._id);
+            setIsEditEmployeeDialogVisible(false);
+            setEditingEmployee(null);
+            toast.success('Employee updated successfully!');
+        } catch (error) {
+            console.error('Error updating employee:', error);
+            toast.error('Failed to update employee.');
+        }
+    };
+
+    const handleDeleteEmployee = (employee: User) => {
+        const companyUser = company.users.find((user) => user.userId === employee._id);
+
+        if (companyUser && companyUser.roles.includes('admin')) {
+            toast.error('Admin users cannot be deleted.');
+            return;
+        }
+
+        confirmDialog({
+            message: `Are you sure you want to delete ${employee.name} ${employee.surnames}?`,
+            header: 'Confirm Deletion',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    await deleteUserFromCompany(company._id, employee._id);
+                    await updateCompany(company._id);
+                    toast.success('Employee deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting employee from company:', error);
+                    toast.error('Failed to delete employee. Please try again.');
+                }
+            },
+        });
     };
 
     const renderHeader = () => {
@@ -208,6 +250,60 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 <Column header="Team" body={teamTemplate} sortable style={{ width: '25%' }} />
                 <Column body={actionTemplate} style={{ width: '5%' }} />
             </DataTable>
+
+            <Dialog
+                header="Edit Employee"
+                visible={isEditEmployeeDialogVisible}
+                onHide={() => {
+                    setIsEditEmployeeDialogVisible(false);
+                    setEditingEmployee(null);
+                }}
+            >
+                <div className="edit-employee-form">
+                    <span className="p-float-label">
+                        <MultiSelect
+                            value={editingEmployee?.roles || []}
+                            options={[
+                                { label: 'Admin', value: 'admin' },
+                                { label: 'Manager', value: 'manager' },
+                                { label: 'Employee', value: 'employee' },
+                            ]}
+                            onChange={(e) =>
+                                setEditingEmployee({
+                                    ...editingEmployee,
+                                    roles: e.value,
+                                })
+                            }
+                            placeholder="Select Roles"
+                            display="chip"
+                        />
+                        <label htmlFor="editEmployeeRoles">Roles</label>
+                    </span>
+                    <span className="p-float-label mt-2">
+                        <MultiSelect
+                            value={editingEmployee?.team?.teamId ? [editingEmployee.team.teamId] : []}
+                            options={teams.map((team) => ({ label: team.name, value: team.teamId }))}
+                            onChange={(e) => {
+                                const selectedTeamId = e.value[0] || '';
+                                const selectedTeam = teams.find((team) => team.teamId === selectedTeamId);
+                                setEditingEmployee({
+                                    ...editingEmployee,
+                                    team: selectedTeam ? { name: selectedTeam.name, teamId: selectedTeam.teamId } : null,
+                                });
+                            }}
+                            placeholder="Select Team"
+                            display="chip"
+                        />
+                        <label htmlFor="editEmployeeTeam">Team</label>
+                    </span>
+                    <Button
+                        label="Save"
+                        icon="pi pi-check"
+                        onClick={handleEditEmployee}
+                        className="p-button-primary mt-3"
+                    />
+                </div>
+            </Dialog>
 
             <Dialog
                 header="Add Employee"
