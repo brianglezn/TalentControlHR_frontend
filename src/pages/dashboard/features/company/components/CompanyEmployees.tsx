@@ -36,7 +36,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
     });
 
     const getEmployeeTeam = (employeeId: string) => {
-        const team = teams.find((t) => t.users.includes(employeeId));
+        const team = teams.find((t) => t?.users?.includes(employeeId));
         return team
             ? { name: team.name, color: team.color }
             : { name: 'No Team', color: '#6b7280' };
@@ -61,7 +61,9 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const teamTemplate = (employee: User) => {
         const team = getEmployeeTeam(employee._id);
-        return <Tag value={team.name} style={{ backgroundColor: team.color, color: '#fff' }} />;
+        return (
+            <Tag value={team.name} style={{ backgroundColor: team.color, color: '#fff' }} />
+        );
     };
 
     const rolesTemplate = (employee: User) => {
@@ -104,12 +106,12 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const handleDeleteEmployee = (employee: User) => {
         const companyUser = company.users.find((user) => user.userId === employee._id);
-    
+
         if (companyUser && companyUser.roles.includes('admin')) {
             toast.error('Admin users cannot be deleted.');
             return;
         }
-    
+
         confirmDialog({
             message: `Are you sure you want to delete ${employee.name} ${employee.surnames}?`,
             header: 'Confirm Deletion',
@@ -126,7 +128,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             },
         });
     };
-    
+
     const handleAddEmployee = async () => {
         if (!newEmployee.name || !newEmployee.email || !newEmployee.password || !newEmployee.username) {
             toast.error('All fields are required.');

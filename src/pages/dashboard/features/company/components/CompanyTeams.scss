@@ -1,37 +1,50 @@
 @use '../../../../../../variables' as vars;
 
-.company-menu {
-    display: flex;
-    padding: 1rem;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: vars.$shadow_color 0px 1px 5px;
-
-    ul {
+.company-teams {
+    .teams-list-header {
         display: flex;
-        gap: 1.5rem;
-        list-style: none;
-        padding: 0;
-        margin: 0;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
 
-        li {
-            cursor: pointer;
-            color: vars.$primaryColor;
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+        .p-inputgroup {
+            width: auto;
+        }
+    }
 
-            &.active {
-                background-color: vars.$primaryColor;
-                color: vars.$primaryTextColor;
-            }
+    .action-buttons {
+        display: flex;
+        justify-content: end;
+        gap: 0.5rem;
+
+        i {
+            font-size: 1.2rem;
 
             &:hover {
-                background-color: vars.$primaryLightColor;
-                color: vars.$highlightTextColor;
+                cursor: pointer;
+                color: vars.$primaryColor;
             }
+        }
+    }
+}
+
+.p-dialog {
+
+    .add-team-form,
+    .edit-team-form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        min-width: 350px;
+
+        input {
+            width: 100%;
+        }
+
+        .p-float-label:last-of-type label {
+            color: vars.$primaryTextColor;
         }
     }
 }

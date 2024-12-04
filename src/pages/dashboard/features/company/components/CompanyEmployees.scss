@@ -1,28 +1,6 @@
 @use '../../../../../../variables' as vars;
 
 .company-employees {
-    .controls {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-
-        .control-item {
-            flex: 2;
-        }
-
-        .control-item:last-child {
-            flex: 1;
-
-            button {
-                width: 100%;
-            }
-        }
-
-        .team-dropdown {
-            width: 100%;
-        }
-    }
-
     .employees-list {
         .employees-list-header {
             display: flex;

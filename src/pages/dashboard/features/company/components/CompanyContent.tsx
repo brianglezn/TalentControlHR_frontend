@@ -33,8 +33,7 @@ export default function CompanyContent({
                 />
             )}
             {selectedSection === 'teams' && (
-                <CompanyTeams
-                />
+                <CompanyTeams company={company} />
             )}
         </section>
     );
