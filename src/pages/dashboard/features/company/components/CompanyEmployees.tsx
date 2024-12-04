@@ -43,9 +43,10 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
     const getEmployeeTeam = (employeeId: string) => {
         const team = teams.find((t) => t?.users?.includes(employeeId));
         return team
-            ? { teamId: team.teamId, name: team.name, color: team.color }
+            ? { teamId: team.teamId || '', name: team.name || 'No Team', color: team.color || '#6b7280' }
             : { teamId: '', name: 'No Team', color: '#6b7280' };
     };
+
 
     const imageTemplate = (employee: User) => (
         <Avatar
@@ -77,6 +78,16 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             return <span>No roles assigned</span>;
         }
 
+        const getRoleStyles = (role: string) => {
+            switch (role) {
+                case 'admin':
+                    return { backgroundColor: '#6d28d9', color: '#ffffff' };
+                case 'manager':
+                    return { backgroundColor: '#8b5cf6', color: '#ffffff' };
+                default:
+                    return { backgroundColor: '#ddd6fe', color: '#333333' };
+            }
+        };
         return (
             <>
                 {companyUser.roles.map((role, index) => (
@@ -84,14 +95,14 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                         key={index}
                         value={role}
                         style={{
-                            backgroundColor: role === 'admin' ? '#8b5cf6' : '#3e3e3e',
-                            color: '#fff',
+                            ...getRoleStyles(role),
                             marginRight: '5px',
                         }}
                     />
                 ))}
             </>
         );
+
     };
 
     const actionTemplate = (employee: User) => (
@@ -279,7 +290,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                         />
                         <label htmlFor="editEmployeeRoles">Roles</label>
                     </span>
-                    <span className="p-float-label mt-2">
+                    <span className="p-float-label">
                         <MultiSelect
                             value={editingEmployee?.team?.teamId ? [editingEmployee.team.teamId] : []}
                             options={teams.map((team) => ({ label: team.name, value: team.teamId }))}
