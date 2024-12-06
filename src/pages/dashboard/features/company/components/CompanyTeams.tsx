@@ -161,7 +161,7 @@ export default function CompanyTeams({ company }: CompanyTeamsProps) {
                 <Column
                     style={{ width: '5%' }}
                     body={(team) => (
-                        <Tag style={{ backgroundColor: team.color, padding: '0.8rem', display: 'flex' }}></Tag>
+                        <Tag style={{ backgroundColor: team.color }}></Tag>
                     )}
                 />
                 <Column style={{ width: '40%' }} field="name" header="Name" />

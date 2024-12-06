@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import LoginForm from './components/LoginForm';
-import RegisterForm from './components/RegisterForm';
 
 import './Home.scss';
+import LoginForm from './components/LoginForm';
+import RegisterForm from './components/RegisterForm';
 import logoTextHWhite from '@assets/images/logo_text_h_white.png';
 
 export default function Home() {

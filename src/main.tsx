@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import App from './App.tsx'
-
 import 'primereact/resources/themes/lara-light-purple/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './index.scss'

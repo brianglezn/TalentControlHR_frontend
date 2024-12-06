@@ -10,7 +10,6 @@ const Calendar = React.lazy(() => import('@pages/dashboard/features/calendar/Cal
 const UserSettings = React.lazy(() => import('@pages/dashboard/features/userSettings/UserSettings'));
 const Inbox = React.lazy(() => import('@pages/dashboard/features/inbox/Inbox'));
 const Company = React.lazy(() => import('@pages/dashboard/features/company/Company'));
-
 import { ProtectedRoute } from '@context/ProtectedRoute';
 import { AuthProvider } from '@context/AuthContext';
 import { UserCompanyProvider } from '@context/UserCompanyContext';
@@ -18,7 +17,6 @@ import { UserCompanyProvider } from '@context/UserCompanyContext';
 export default function App() {
     return (
         <AuthProvider>
-
             <UserCompanyProvider>
                 <Routes>
                     <Route path="/" element={<Home />} />

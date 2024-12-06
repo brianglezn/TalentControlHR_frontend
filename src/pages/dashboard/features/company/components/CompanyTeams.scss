@@ -26,10 +26,16 @@
             }
         }
     }
+
+    span.p-tag.p-component {
+        display: flex;
+        padding: 0.8rem;
+        max-width: 0.8rem;
+        max-height: 0.8rem;
+    }
 }
 
 .p-dialog {
-
     .add-team-form,
     .edit-team-form {
         display: flex;

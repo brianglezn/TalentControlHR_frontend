@@ -9,6 +9,8 @@ import { InputText } from 'primereact/inputtext';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { toast } from 'react-hot-toast';
 import { MultiSelect } from 'primereact/multiselect';
+import { Dropdown } from 'primereact/dropdown';
+import { Password } from 'primereact/password';
 
 import './CompanyEmployees.scss';
 import { User, Company, CompanyTeam } from '@utils/types';
@@ -47,7 +49,6 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             : { teamId: '', name: 'No Team', color: '#6b7280' };
     };
 
-
     const imageTemplate = (employee: User) => (
         <Avatar
             label={`${employee.name.charAt(0).toUpperCase()}${employee.surnames.charAt(0).toUpperCase()}`}
@@ -72,12 +73,11 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const rolesTemplate = (employee: User) => {
         const companyUser = company.users.find((user) => user.userId === employee._id);
-
-        if (!companyUser || !companyUser.roles) {
-            console.warn('No roles found for this user:', employee._id);
-            return <span>No roles assigned</span>;
+    
+        if (!companyUser || !companyUser.roles || companyUser.roles.length === 0) {
+            return <Tag value="No role" style={{ backgroundColor: '#6b7280', color: '#ffffff' }} />;
         }
-
+    
         const getRoleStyles = (role: string) => {
             switch (role) {
                 case 'admin':
@@ -88,6 +88,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     return { backgroundColor: '#ddd6fe', color: '#333333' };
             }
         };
+    
         return (
             <>
                 {companyUser.roles.map((role, index) => (
@@ -102,9 +103,8 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                 ))}
             </>
         );
-
     };
-
+    
     const actionTemplate = (employee: User) => (
         <div className="action-buttons">
             <i
@@ -165,25 +165,59 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const handleEditEmployee = async () => {
         if (!editingEmployee || !editingEmployee._id) return;
-
+    
         try {
-            // Actualización de roles
-            if (editingEmployee.roles) {
-                await updateUserRolesInCompany(company._id, editingEmployee._id, editingEmployee.roles);
+            const currentRoles = company.users.find((user) => user.userId === editingEmployee._id)?.roles || [];
+            const isRemovingAdmin = currentRoles.includes('admin') && !editingEmployee.roles?.includes('admin');
+    
+            if (isRemovingAdmin) {
+                const remainingAdmins = company.users.filter(
+                    (user) => user.roles.includes('admin') && user.userId !== editingEmployee._id
+                );
+    
+                if (remainingAdmins.length === 0) {
+                    toast.error('There must be at least one admin in the company.');
+                    return;
+                }
             }
-
-            // Gestión de equipo
-            const currentTeam = teams.find((team) => team.users?.includes(editingEmployee._id));
-            if (currentTeam?.teamId !== editingEmployee.team?.teamId) {
+    
+            const currentTeam = teams.find((team) => editingEmployee._id && team.users?.includes(editingEmployee._id));
+            const newTeamId = editingEmployee.team?.teamId;
+    
+            if (currentTeam?.teamId !== newTeamId) {
                 if (currentTeam) {
-                    await deleteUserFromTeam(company._id, currentTeam.teamId, editingEmployee._id);
+                    try {
+                        await deleteUserFromTeam(company._id, currentTeam.teamId, editingEmployee._id);
+                    } catch (error) {
+                        console.error('Error removing user from team:', error);
+                        toast.error('Failed to remove user from current team.');
+                        return;
+                    }
                 }
-                if (editingEmployee.team?.teamId) {
-                    await addUserToTeam(company._id, editingEmployee.team.teamId, editingEmployee._id);
+    
+                if (newTeamId) {
+                    try {
+                        await addUserToTeam(company._id, newTeamId, editingEmployee._id);
+                    } catch (error) {
+                        console.error('Error adding user to new team:', error);
+                        toast.error('Failed to add user to new team.');
+                        return;
+                    }
                 }
             }
-
+    
+            if (editingEmployee.roles) {
+                try {
+                    await updateUserRolesInCompany(company._id, editingEmployee._id, editingEmployee.roles);
+                } catch (error) {
+                    console.error('Error updating user roles:', error);
+                    toast.error('Failed to update user roles.');
+                    return;
+                }
+            }
+    
             await updateCompany(company._id);
+    
             setIsEditEmployeeDialogVisible(false);
             setEditingEmployee(null);
             toast.success('Employee updated successfully!');
@@ -192,7 +226,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             toast.error('Failed to update employee.');
         }
     };
-
+    
     const handleDeleteEmployee = (employee: User) => {
         const companyUser = company.users.find((user) => user.userId === employee._id);
 
@@ -263,60 +297,6 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             </DataTable>
 
             <Dialog
-                header="Edit Employee"
-                visible={isEditEmployeeDialogVisible}
-                onHide={() => {
-                    setIsEditEmployeeDialogVisible(false);
-                    setEditingEmployee(null);
-                }}
-            >
-                <div className="edit-employee-form">
-                    <span className="p-float-label">
-                        <MultiSelect
-                            value={editingEmployee?.roles || []}
-                            options={[
-                                { label: 'Admin', value: 'admin' },
-                                { label: 'Manager', value: 'manager' },
-                                { label: 'Employee', value: 'employee' },
-                            ]}
-                            onChange={(e) =>
-                                setEditingEmployee({
-                                    ...editingEmployee,
-                                    roles: e.value,
-                                })
-                            }
-                            placeholder="Select Roles"
-                            display="chip"
-                        />
-                        <label htmlFor="editEmployeeRoles">Roles</label>
-                    </span>
-                    <span className="p-float-label">
-                        <MultiSelect
-                            value={editingEmployee?.team?.teamId ? [editingEmployee.team.teamId] : []}
-                            options={teams.map((team) => ({ label: team.name, value: team.teamId }))}
-                            onChange={(e) => {
-                                const selectedTeamId = e.value[0] || '';
-                                const selectedTeam = teams.find((team) => team.teamId === selectedTeamId);
-                                setEditingEmployee({
-                                    ...editingEmployee,
-                                    team: selectedTeam ? { name: selectedTeam.name, teamId: selectedTeam.teamId } : null,
-                                });
-                            }}
-                            placeholder="Select Team"
-                            display="chip"
-                        />
-                        <label htmlFor="editEmployeeTeam">Team</label>
-                    </span>
-                    <Button
-                        label="Save"
-                        icon="pi pi-check"
-                        onClick={handleEditEmployee}
-                        className="p-button-primary mt-3"
-                    />
-                </div>
-            </Dialog>
-
-            <Dialog
                 header="Add Employee"
                 visible={isAddEmployeeDialogVisible}
                 onHide={() => setIsAddEmployeeDialogVisible(false)}
@@ -355,11 +335,13 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                         <label htmlFor="employeeUsername">Username</label>
                     </span>
                     <span className="p-float-label mt-2">
-                        <InputText
+                        <Password
                             id="employeePassword"
-                            type="password"
                             value={newEmployee.password}
                             onChange={(e) => setNewEmployee({ ...newEmployee, password: e.target.value })}
+                            toggleMask
+                            feedback={false}
+                            placeholder="Enter password"
                         />
                         <label htmlFor="employeePassword">Password</label>
                     </span>
@@ -371,6 +353,61 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     />
                 </div>
             </Dialog>
+
+            <Dialog
+                header="Edit Employee"
+                visible={isEditEmployeeDialogVisible}
+                onHide={() => {
+                    setIsEditEmployeeDialogVisible(false);
+                    setEditingEmployee(null);
+                }}
+            >
+                <div className="edit-employee-form">
+                    <span className="p-float-label">
+                        <MultiSelect
+                            value={editingEmployee?.roles || []}
+                            options={[
+                                { label: 'Admin', value: 'admin' },
+                                { label: 'Manager', value: 'manager' },
+                                { label: 'Employee', value: 'employee' },
+                            ]}
+                            onChange={(e) =>
+                                setEditingEmployee({
+                                    ...editingEmployee,
+                                    roles: e.value,
+                                })
+                            }
+                            placeholder="Select Roles"
+                            display="chip"
+                        />
+                        <label htmlFor="editEmployeeRoles">Roles</label>
+                    </span>
+                    <span className="p-float-label">
+                        <Dropdown
+                            value={editingEmployee?.team?.teamId || ''}
+                            options={teams.map((team) => ({ label: team.name, value: team.teamId }))}
+                            onChange={(e) => {
+                                const selectedTeamId = e.value;
+                                const selectedTeam = teams.find((team) => team.teamId === selectedTeamId);
+                                setEditingEmployee((prev) => ({
+                                    ...prev,
+                                    team: selectedTeam ? { name: selectedTeam.name, teamId: selectedTeam.teamId } : null,
+                                }));
+                            }}
+                            placeholder="Select Team"
+                        />
+                        <label htmlFor="editEmployeeTeam">Team</label>
+
+                    </span>
+                    <Button
+                        label="Save"
+                        icon="pi pi-check"
+                        onClick={handleEditEmployee}
+                        className="p-button-primary mt-3"
+                    />
+                </div>
+            </Dialog>
+
             <ConfirmDialog />
         </div>
     );
