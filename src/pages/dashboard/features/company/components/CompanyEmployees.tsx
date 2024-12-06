@@ -49,6 +49,14 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             : { teamId: '', name: 'No Team', color: '#6b7280' };
     };
 
+    const employeesWithTeam = employees.map((employee) => {
+        const team = getEmployeeTeam(employee._id);
+        return {
+            ...employee,
+            teamName: team.name,
+        };
+    });
+
     const imageTemplate = (employee: User) => (
         <Avatar
             label={`${employee.name.charAt(0).toUpperCase()}${employee.surnames.charAt(0).toUpperCase()}`}
@@ -73,11 +81,11 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const rolesTemplate = (employee: User) => {
         const companyUser = company.users.find((user) => user.userId === employee._id);
-    
+
         if (!companyUser || !companyUser.roles || companyUser.roles.length === 0) {
             return <Tag value="No role" style={{ backgroundColor: '#6b7280', color: '#ffffff' }} />;
         }
-    
+
         const getRoleStyles = (role: string) => {
             switch (role) {
                 case 'admin':
@@ -88,7 +96,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     return { backgroundColor: '#ddd6fe', color: '#333333' };
             }
         };
-    
+
         return (
             <>
                 {companyUser.roles.map((role, index) => (
@@ -104,7 +112,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             </>
         );
     };
-    
+
     const actionTemplate = (employee: User) => (
         <div className="action-buttons">
             <i
@@ -165,25 +173,25 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
 
     const handleEditEmployee = async () => {
         if (!editingEmployee || !editingEmployee._id) return;
-    
+
         try {
             const currentRoles = company.users.find((user) => user.userId === editingEmployee._id)?.roles || [];
             const isRemovingAdmin = currentRoles.includes('admin') && !editingEmployee.roles?.includes('admin');
-    
+
             if (isRemovingAdmin) {
                 const remainingAdmins = company.users.filter(
                     (user) => user.roles.includes('admin') && user.userId !== editingEmployee._id
                 );
-    
+
                 if (remainingAdmins.length === 0) {
                     toast.error('There must be at least one admin in the company.');
                     return;
                 }
             }
-    
+
             const currentTeam = teams.find((team) => editingEmployee._id && team.users?.includes(editingEmployee._id));
             const newTeamId = editingEmployee.team?.teamId;
-    
+
             if (currentTeam?.teamId !== newTeamId) {
                 if (currentTeam) {
                     try {
@@ -194,7 +202,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                         return;
                     }
                 }
-    
+
                 if (newTeamId) {
                     try {
                         await addUserToTeam(company._id, newTeamId, editingEmployee._id);
@@ -205,7 +213,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     }
                 }
             }
-    
+
             if (editingEmployee.roles) {
                 try {
                     await updateUserRolesInCompany(company._id, editingEmployee._id, editingEmployee.roles);
@@ -215,9 +223,9 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     return;
                 }
             }
-    
+
             await updateCompany(company._id);
-    
+
             setIsEditEmployeeDialogVisible(false);
             setEditingEmployee(null);
             toast.success('Employee updated successfully!');
@@ -226,7 +234,7 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
             toast.error('Failed to update employee.');
         }
     };
-    
+
     const handleDeleteEmployee = (employee: User) => {
         const companyUser = company.users.find((user) => user.userId === employee._id);
 
@@ -280,19 +288,19 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
     return (
         <div className="company-employees">
             <DataTable
-                value={employees}
+                value={employeesWithTeam}
                 className="employees-list"
                 paginator
                 rows={10}
                 globalFilter={globalFilter}
-                globalFilterFields={['name', 'surnames']}
+                globalFilterFields={['name', 'surnames', 'teamName']}
                 header={header}
                 emptyMessage="No employees found."
             >
                 <Column body={imageTemplate} style={{ width: '5%' }} />
-                <Column header="Full Name" body={fullNameTemplate} field="name" style={{ width: '40%' }} />
+                <Column header="Full Name" body={fullNameTemplate} sortable field="name" style={{ width: '40%' }} />
                 <Column header="Roles" body={rolesTemplate} style={{ width: '25%' }} />
-                <Column header="Team" body={teamTemplate} sortable style={{ width: '25%' }} />
+                <Column header="Team" body={teamTemplate} sortable field="teamName" style={{ width: '25%' }} />
                 <Column body={actionTemplate} style={{ width: '5%' }} />
             </DataTable>
 
@@ -385,7 +393,10 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                     <span className="p-float-label">
                         <Dropdown
                             value={editingEmployee?.team?.teamId || ''}
-                            options={teams.map((team) => ({ label: team.name, value: team.teamId }))}
+                            options={[
+                                { label: 'No team', value: '' },
+                                ...teams.map((team) => ({ label: team.name, value: team.teamId })),
+                            ]}
                             onChange={(e) => {
                                 const selectedTeamId = e.value;
                                 const selectedTeam = teams.find((team) => team.teamId === selectedTeamId);
@@ -397,8 +408,8 @@ export default function CompanyEmployees({ employees, teams, company, onAddEmplo
                             placeholder="Select Team"
                         />
                         <label htmlFor="editEmployeeTeam">Team</label>
-
                     </span>
+
                     <Button
                         label="Save"
                         icon="pi pi-check"
